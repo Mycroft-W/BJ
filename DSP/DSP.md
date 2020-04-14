@@ -1,6 +1,6 @@
-[toc]
-
 # DSP（Digital Signal Processing）数字信号处理
+
+[toc]
 
 ## 绪论
 
@@ -37,7 +37,7 @@
 
 ### 1.2 时域离散信号
 
-对模拟信号进项等间隔采用便可获得时域离散信号。在实际应用中,通常采用价格为常数T,即 $ t_n=nT $。
+对模拟信号进项等间隔采用便可获得时域离散信号。在实际应用中,通常采用价格为常数$$T$$,即  $t_n=nT$。
 
 $$ x(n) = x_n(t) | _{t = nT} = x_n(nT), {-\infty}<n<{\infty} $$
 
@@ -55,77 +55,48 @@ $$ x(n) = x_n(t) | _{t = nT} = x_n(nT), {-\infty}<n<{\infty} $$
 
     ![$x=sin(x\pi/5)$](.\DSP-images\pic_1.jpg)
 
-    
-
 ### 1.2.1 常用的典型序列
 
-1.  单位脉冲序列$ \delta(n)$
-
-    $$ \delta(n) = \begin{cases} 1 & n =0 \\ 0 & n \ne 0 \end{cases} $$
-
+1. 单位脉冲序列 $ \delta(n)$
+    $$ \delta(n) = \begin{cases} 1 & n =0 \\ 0 & n \ne 0 \end{cases} $$  
     ![$ \delta(n) $](.\DSP-images\pic_2.jpg)
-
-2.  单位阶跃信号$ u(n)$
-
-    $$ u(n) = \begin{cases} 1 & n \geq 0 \\ 0 & n< 0 \end{cases}$$
-
-    ![$ u(n) $](.\DSP-images\pic_3.jpg)
-
-    $ \delta(n)$与$u(n)$ 之间的关系如下列公式所示：
-
+2. 单位阶跃信号$ u(n)$
+    $$ u(n) = \begin{cases} 1 & n \geq 0 \\ 0 & n< 0 \end{cases}$$  
+    ![$ u(n) $](.\DSP-images\pic_3.jpg)  
+    $\delta(n)$ 与 $u(n)$ 之间的关系如下列公式所示：  
     $$ u(n) =\sum_{k = 0}^{\infty}{\delta(n-k)} $$
-
-3.  矩形序列 $ R_N(n)$
-
-    $$ R_N(n) = \begin{cases} 1 & 0 \leq N-1 \\ 0 & 其它n \end{cases}$$
-
-![$ R_N(n)$](.\DSP-images\pic_4.jpg)
-
-式中，N称为矩形序列的长度。
-
-矩形序列可用单位阶跃序列表示，如下式：
-
-$$ R_N(n) = u(n) - u(n-N) $$
-
-4.  实指数序列
-
-    $$x(n) = a^nu(n), a 为实数$$
-
+3. 矩形序列 $ R_N(n)$
+    $$ R_N(n) = \begin{cases} 1 & 0 \leq N-1 \\ 0 & 其它n \end{cases}$$  
+    ![$ R_N(n)$](.\DSP-images\pic_4.jpg)  
+    式中，N称为矩形序列的长度。  
+    矩形序列可用单位阶跃序列表示，如下式：  
+    $$ R_N(n) = u(n) - u(n-N) $$  
+4. 实指数序列
+    $$x(n) = a^nu(n), a 为实数$$  
     ![$x(n) =a^nu(n)$](.\DSP-images\pic_5.jpg)
-
-5.  正弦序列
-
-    $$ x(n)= \sin(\omega n) = \sin(\Omega nT)$$
-
+5. 正弦序列
+    $$ x(n)= \sin(\omega n) = \sin(\Omega nT)$$  
     $\omega$ 为数字角频率，$\Omega$ 为模拟角频率，$T$ 为采样周期，与采样频率$F_s$ 互为倒数。
-
-6.  复指数序列
-
+6. 复指数序列
     $$x(n)=e^{({ \sigma+j_{\omega_0}})n}$$
+7. 周期数列
+    如果对所有n存在一个最小的正整数N，使下面等式成立：  
+    $$x(n) = x(n+N), -\infty <n< \infty$$  
+    则称序列x(n)为周期序列，周期为N。  
 
-7.  周期数列
-
-    如果对所有n存在一个最小的正整数N，使下面等式成立：
-
-    $$x(n) = x(n+N), -\infty <n< \infty$$
-
-    则称序列x(n)为周期序列，周期为N。
-
-对于任意序列x（n），可以用单位脉冲序列的意味甲醛和表示，即
-
+对于任意序列 $x(n)$ ，可以用单位脉冲序列的意味甲醛和表示，即
 $$ x(n) = \sum^{\infty}_{n=-\infty}x(m)\delta(n-m) $$
 
 ### 1.2.2 序列的运算
 
-1.  加法和乘法
-2.  移位、翻转即尺度变换
+1. 加法和乘法
+2. 移位、翻转即尺度变换
 
 ## 1.3 时域离散系统
 
 输出与输入之间关系用下式表示：
 
 $$ y(n) = T[x(n)] $$
-
 ![y(n)](.\DSP-images\pic_6.jpg)
 
 ### 1.3.1 线性系统
@@ -138,4 +109,4 @@ $$ y(n) = T[x(n)] $$
 
 ### 1.3.3 线性时不变系统及其输入与输出之间的关系
 
-线性时不变系统：同时满足线性和时不变特性的系统称为时域离散线性时不变系统。
+线性时不变系统：同时满足线性和时不变特性的系统称为**时域离散线性时不变系统**。
