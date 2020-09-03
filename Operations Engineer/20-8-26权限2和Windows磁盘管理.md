@@ -4,13 +4,9 @@
 
 Windows权限分类：
 
-​	无权限
-
-​	允许
-
-​	拒绝
-
-
+	* 无权限
+	* 允许
+	* 拒绝
 
 1.  网络权限与本地权限（Windows、Linux一致）（Samba、FTP、NFS）
 
