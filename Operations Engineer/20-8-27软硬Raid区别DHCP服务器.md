@@ -59,7 +59,7 @@ DHCP(Dynamic Host Configuration Protocol)动态主机配置协议
 
 ### 客户端常用命令
 
-~~~cmd
+~~~shell
 ipconfig # 查询网络信息
 ipconfig /release # 释放获取的IP地址
 ipconfig /renew # 重新获取IP地址
