@@ -1,4 +1,4 @@
-# Linux命令行和shell编程
+# 	Linux命令行和shell编程
 
 ## Linux简介
 
@@ -919,33 +919,247 @@ fsck # 检查修复文件系统
 fsck options filesystem # 文件系统可以通过设备名、挂载点、UUID引用
 ~~~
 
-## 逻辑卷管理
+### 逻辑卷管理
 
 **Linux逻辑卷管理（logical volume manager，LVM）**
 
-### 逻辑卷管理布局
+#### 逻辑卷管理布局
 
 硬盘称为**物理卷（physical volume，PV）**，每个逻辑卷都会映射到硬盘上特定的物理分区
 
 多个物理卷集中在一起形成一个**卷组（volume group，VG）**，卷组提供创建逻辑分区的平台
 
-结构的队后一层是**逻辑卷（logical volume，LV）**，逻辑卷提供了创建文件系统的分区环境 ，Linux系统将逻辑卷设为物理分区
+结构的队后一层是**逻辑卷（logical volume，LV）**，逻辑卷提供了创建文件系统的分区环境 ，Linux系统将逻辑卷视物理分区
 
 ![](逻辑卷.jpg)
 
+#### Linux中的LVM
 
+*   LVM1，只能用于Linux内核2.4版本，提供了基本的逻辑卷管理功能
+*   LVM2，可用于Linux内核2.6版本，提供了额外功能
 
+1.  快照
 
+    LVM1只能创建只读快照。LVM2允许创建在线逻辑卷的可读写快照
 
+2.  条带化
 
+    可跨多个物理硬盘创建逻辑卷（不同于RAID条带化，LVM条带化没有提供容错）
 
+3. 镜像
 
+   LVM镜像是实时更新的逻辑卷的完整副本 
 
+#### 使用Linux LVM
 
+1.  定义物理卷
 
+    将硬盘上的物理分区转换为Linux LVM的物理卷区段，使用`fdisk`命令，通过`t`命令改变分区类型（8e类型表示分区会作为Linux LVM系统的一部分）；然后通过`pvcreate`命令创建实际的物理卷
 
+    ~~~shell
+    pvcreate /dev/sdb1 # 创建物理卷
+    pvdisplay /dev/sdb1 # 查看物理卷信息
+    ~~~
 
+2.  创建卷组
 
+    ~~~shell
+    vgcreat Vol1（卷组名） /dev/sdb1 # 创建卷组
+    vgdisplay Vol1 # 查看卷组信息
+    ~~~
+
+3.  创建逻辑卷
+
+    ~~~shell
+    lvcreate -l 100%FREE -n lvtest Vol1 # 创建逻辑卷使用全部空闲空间，卷名lvtest，在Vol1卷组创建
+    	-l # 指定分配区段数，或百分比
+    	-L # 指定使用大小（KB、MB、GB）
+    	-n # 指定逻辑卷名
+    lvdisplay Vol1# 查看逻辑卷信息
+    ~~~
+
+4.  创建文件系统
+
+    ~~~shell
+    mkfs.ext4 /dev/Vol1/lvtest # 在逻辑卷lvtest中写入ext4文件系统
+    ~~~
+
+5.  挂载使用
+
+    ~~~shell
+    mount /dev/Vol1/lvtest /mnt/my_partition # 将lvtest卷挂载至/my_partition
+    ~~~
+
+**注意：在写入文件系统和挂载使用时，使用卷组名和逻辑卷名，而不是物理分区路径**
+
+#### 修改LVM
+
+Linux LVM包中的常见命令
+
+| 命令     | 功能               |
+| -------- | ------------------ |
+| vgchange | 激活和禁用卷组     |
+| vgremove | 删除卷组           |
+| vgextend | 将物理卷加到卷组中 |
+| vgreduce | 从卷组删除物理卷   |
+| lvextend | 增加逻辑卷大小     |
+| lvreduce | 减小逻辑卷大小     |
+
+## 安装软件程序
+
+包管理系统（package management system，PMS）
+
+### 包管理基础
+
+PMS利用一个数据库记录相关内容
+
+*   Linux系统上安装的软件包
+*   每个包安装了什么文件
+*   每个安装的软件包的版本
+
+软件包存储在远程服务器上，这些服务器称为**仓库（repository）**，PMS工具会检测软件包的依赖关系，并在安装需要的包之前安装需要的包
+
+*   基于Debian的发行版，使用的时dpkg命令
+
+*   基于Red Hat的发行版，使用的时rpm命令
+
+    两者都能列出已安装包、安装新包和删除已有包
+
+### 基于Debian的系统
+
+基于Debian系PMS工具的核心是dpkg命令，包含
+
+*   apt-get
+*   apt-cache
+*   aptitude
+
+#### 用aptitude管理软件包
+
+aptitude具有交互界面，也可使用单个命令的方式
+
+~~~shell
+aptitude show package_name # 显示某个特定包的详细信息，但无法显示安装的相关包
+
+dpkg -l package_name # 列出了安装的所有相关的包
+
+dpkg --search absolute_file_name # 查看特定文件属于那个软件包（使用绝对路径）
+~~~
+
+#### 用aptitude安装软件包
+
+~~~shell
+aptitude search package_name # 查找包（隐式添加通配符）
+# i 表示已经安装；p或v表示包可用，但没安装；c 表示包被删除，但配置还在
+
+aptitude install package_name # 安装指定包（自动安装包依赖）
+~~~
+
+#### 用aptitude更新软件
+
+~~~shell
+aptitude safe-upgrade # 更新系统上所有包（自动检查依赖）
+
+aptitude full-upgrade # 更新系统所有包（不检查依赖）
+aptitude dist-upgrade # 同上
+~~~
+
+#### 用aptitude卸载软件
+
+~~~shell
+aptitude remove package_name # 只卸载包，不删除数据和配置
+aptitude purge package_name # 完全删除包
+~~~
+
+#### aptitude仓库
+
+`aptitude`仓库位置存储在文件`/etc/apt/sources.list`中
+
+### 基于 Red Hat 的系统
+
+基于 Red Hat 的系统的核心是rpm工具，常见：
+
+*   yum：Red Hat 和 Fedora
+*   urpm：Mandriva
+*   zypper：openSUSE
+
+#### 列出已安装包
+
+~~~shell
+yum list installed # 列出系统上已安装的包
+
+yum list package_name # 查看指定包的信息
+
+yum list installed package_name # 查看包是否安装
+
+yum provides file_name # 查看指定文件属于那个包
+~~~
+
+#### 用 yum 安装软件
+
+~~~shell
+yum install package_name # 安装指定包（自动安装依赖）
+
+yum localinstall package_name.rpm # 下载rpm包后本地安装
+~~~
+
+#### 用 yum 更新软件
+
+~~~shell
+yum list updates # 列出所有可用更新
+
+yum update package_name # 更新指定包
+
+yum update # 更新所有包
+~~~
+
+#### 用 yum 卸载软件
+
+~~~shell
+yum remove package_name # 只删除软件包保留配置和数据
+
+yum erase package_name # 清除所有文件
+~~~
+
+#### 处理损坏的包依赖关系
+
+损坏的包依赖关系（broken dependency）
+
+~~~shell
+yum clean all # 清除问题文件，然后更新
+
+yum deplist package_name # 显示包依赖
+
+yum update --skip-broken # 忽略依赖关系损坏的包，更新其他包
+~~~
+
+#### yum 软件仓库
+
+~~~shell
+yum repolist # 显示正在使用的仓库
+~~~
+
+配置文件位置`/etc/yum.repos.d`
+
+### 从源码安装
+
+1.  下载源码包，然后解包
+2.  进入源码目录
+3.  查看README文件
+4.  执行`./configure`（检查依赖）
+5.  使用`make`命令构建二进制文件，创建可执行文件（要安装到Linux系统中常用位置，使用`make install`命令
+
+## 使用编辑器
+
+1.  vim 编辑器
+2.  nano 编辑器
+3.  emacs 编辑器
+4.  KDE 系编辑器
+    1.  KWrite
+    2.  Kate
+5.  GNOME 编辑器
+    1.  gedit
+
+## 构建基本脚本
 
 
 
