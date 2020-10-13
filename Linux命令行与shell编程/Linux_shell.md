@@ -1,4 +1,6 @@
-Linux命令行和shell编程
+[TOC]
+
+# Linux命令行和shell编程
 
 ## Linux简介
 
@@ -1496,3 +1498,468 @@ esac
 ~~~
 
 \*) 用来善后(可以不写);pattern 支持简单的正则表达式
+
+## 循环结构
+
+### for 命令
+
+创建一个遍历一系列值得循环
+
+~~~shell
+for var in list
+do
+	commands
+done
+~~~
+
+其中 list 有几种不同方式来指定列表的值,并且可选项
+
+#### 直接定义 list 值
+
+~~~shell
+for test in abc bcd cde def
+do
+	echo $test
+done
+~~~
+
+#### 特殊符号
+
+在 list 中的一些特殊符号要用转移符号进行转义,或者使用双引号
+
+
+#### 从变量读取
+
+```shell
+list="abc bcd cde def" # 定义 list
+list=$list" efg" # list 添加元素
+for test in $list # 使用变量
+do
+	commands
+done
+```
+
+#### 从命令读取
+
+```shell
+for test in $(cat $file) # 使用 cat 命令的输出作为 list
+```
+
+#### 更改字段分隔符
+
+内部分隔符(internal field separator),隔开字段的符号
+
+bash shell 默认的分隔符:
+
+*   空格
+*   制表符
+*   换行符
+
+可以在脚本中自定义分隔符(如果要使用多个符号串联即可)
+
+~~~shell
+IFS=$'\n':; # 将换行符,冒号,分号作为换行符
+~~~
+
+#### 使用通配符读取目录
+
+可以使用 for 命令自动遍历目录中的文件
+
+~~~shell
+for file in /home/rich/test/*
+do
+	commands
+done
+~~~
+
+### C 语言风格的 for 命令
+
+#### C 语言的 for 命令
+
+C 语言中的 for 命令通常使用**变量,迭代条件,变量变化方法**作为 for 循环条件
+
+bash 中 C 语言风格的 for 循环
+
+~~~shell
+for (( variable assignment ; condition ; iteration process ))
+# 例子
+for (( a = 1; a < 10; a++ ))
+~~~
+
+不同于 bash shell 标准的 for 命令:
+
+*   变量赋值可以有空格
+*   条件中的变量不以美元符开头
+*   迭代过程未用 expr 命令格式
+
+#### 使用多个变量
+
+C 语言风格的 for 命令允许使用多个变量,但只能定义一种条件
+
+~~~shell
+for (( a=1, b=10; a <= 10; a++, b--))
+do
+	commands
+done
+~~~
+
+### while 命令
+
+while 命令允许定义一个要测试的命令,然后循环执行一组命令
+
+#### while 的基本格式
+
+~~~shell
+while test command
+do
+	some commands
+done
+~~~
+
+测试命令格式与 if-then 中的相同,while 会在测试条件不成立时停止
+
+#### 使用多个测试命令
+
+while 命令允许在 while 语句定义多个测试命令,但只有最后一个测试命令的退出状态码用来决定循环结束
+
+### until 命令
+
+until 命令和 while 命令的工作方式相反,只有测试命令的退出状态码不为0,bash shell 才会执行循环中列出的命令;与 while 相似,until 也可以使用多个测试命令,最后一个测试命令的退出状态码决定循环是否结束
+
+~~~shell
+until test commands
+do
+	some commands
+done
+~~~
+
+### 嵌套循环
+
+嵌套循环(nested loop) ,在循环中使用循环
+
+被嵌套的循环也被称为内部循环(inner loop)
+
+### 循环处理文件数据
+
+遍历存储在文件中的数据,要使用:
+
+*   嵌套循环
+*   修改IFS环境变量
+
+### 控制循环
+
+使用一下两个命令来控制循环:
+
+*   break 命令
+*   continue 命令
+
+#### break 命令
+
+使用 break 命令可以跳出循环
+
+1.  跳出单个循环
+
+2.  跳出内部循环
+
+3.  跳出外部循环
+
+    在内部循环,要停止外部循环时,可以使用:
+
+    `break N`,默认N为1,表示跳出当前循环;N为2表示停止下一级的外部循环
+
+#### continue 命令
+
+continue 命令可以跳过某次循环中的剩余命令,但不会终止整个循环
+
+和 break 一样,continue 命令也可以通过参数指定继续执行哪一级循环:
+
+`continue n`
+
+### 处理循环的输出
+
+在 shell 脚本中,可以对循环的输出使用管道或进行重定向,通过在 done 命令之后添加一个处理命令实现
+
+~~~shell
+for test in list
+do
+	commands
+done > output.txt # 输出重定向到 output.txt 文件
+~~~
+
+这种方法同样使用于将循环的结果管接给另一个命令
+
+### 实例
+
+#### 查找可执行文件
+
+可执行文件的目录被定义在环境变量PATH中
+
+1.  创建一个 for 循环,对环境变量 PATH 中的目录进行迭代,注意设置分隔符
+
+    ~~~shell
+    IFS=:
+    for folder in $PATH
+do
+    ~~~
+    
+2.  使用另一个 for 循环来迭代特定目录中的所有文件
+
+    ~~~shell
+    for file in $folder/*
+    do
+    ~~~
+
+3.  检查各个文件是否具有可执行文件
+
+    ```shell
+    if [ -x $file ]
+    then
+    	echo " $file"
+    fi
+    ```
+
+#### 创建多个用户账户
+
+将新用户的账户放在一个文本文件中:
+
+userid,username
+
+第一列是用户名,第二列是用户全名(备注信息);使用都好分隔
+
+将 IFS 分隔符设置为逗号,并放入 while 语句的条件测试部分,然后使用 read 命令读取文件中的各行
+
+`while IFS=',' read -r userid name`
+
+read 命令会自动读取 .csv 文本的下一行内容
+
+要把数据从文件送入 while 命令,只需在 while 命令尾部使用输入重定向即可
+
+`done < '$input'` \$input 指向要输入的文件
+
+## 处理用户输入
+
+bash shell 提供了一些不同的方法从用户处获得数据,包括参数\选项以及直接从键盘读取输入
+
+### 命令行参数
+
+#### 读取参数
+
+位置参数(positional parameter),是一组特殊变量,存储的是从命令行读取到的参数:\$0 是程序名,\$1 是第一个参数,\$2 是第二个参数,以此类推,直到第九个参数\$9
+
+在输入参数时,参数使用空格隔开,含有空格的字符串参数要用引号;变量使用与其他变量相同
+
+~~~shell
+./test.sh hello 'Rich Brian'
+~~~
+
+如果需要的参数大于九个,必须为变量加上花括号,比如\${10}
+
+~~~shell
+ehco The tenth parameter is ${10}
+~~~
+
+#### 读取脚本名
+
+在使用\$0 获取脚本名时,会同时获取路径
+
+使用`basename`命令可以剥离路径返回脚本名
+
+~~~shell
+shellname=$(basename $0)
+~~~
+
+#### 测试参数
+
+在使用参数前要检查其中是否存在数据
+
+~~~shell
+if [ -n "$1"] # 检查变量1 是否为空
+then
+	commands
+fi
+~~~
+
+### 特殊参数变量
+
+在 bash shell 中有些特殊变量会记录命令行参数
+
+#### 参数统计
+
+特殊变量`\$#`含有脚本运行时携带的命令行参数的个数
+
+`if-then` 语句用 `-ne` 测试命令行参数数量
+
+`${!#}` 代表最后一个命令行参数变量.当命令行上没有参数时,`${!#}`会返回脚本名
+
+#### 抓取所有数据
+
+`$*`和`$@`变量可以用来访问所有变量
+
+`$*`会将命令行上提供的所有参数当作一个整体保存
+
+`$@`会将命令行上的所有参数作为同一字符串内的独立单词
+
+### 移动变量
+
+`shift`命令会根据参数的相对位置移动命令行参数,默认向左移动一位,\$1 的值会被删除(**注意,变量 $0 的值,依旧是程序名不会变**)
+
+也可以一次移动多个位置,指明移动位数即可:`shift N`
+
+### 处理选项
+
+#### 查找选项
+
+1.  处理简单选项
+
+    在提取每个单独参数时,用 case 语句来判断某个参数是否为选项
+
+    ~~~shell
+    wehile [-n "$1" ]
+    do
+    	case "$1" in
+    		-a) commands;;
+    		-b) commands;;
+    		-c) commands;;
+    		*) commands;;
+    	esac
+    	shift
+    done
+    ~~~
+
+2.  分离参数和选项
+
+    使用双破折号`--`分隔参数和选项
+
+    ~~~shell
+    case "$1" in
+    	-a) commands;;
+    	-b) commands;;
+    	-c) commands;;
+    	--) shift
+    		break;;
+    	*) commands;;
+    esac
+    ~~~
+
+    在遇到双破折号时,使用 break 跳出 while 循环
+
+3.  处理带值的选项
+
+    有些选项会带上一个额外的参数值
+
+    ~~~shell
+    case "$1" in
+    	-a) commands;;
+    	-b) commands with "$2"
+    		shift;;
+    	*) commands;;
+    esac
+    ~~~
+
+    需要处理的参数是 \$1 ,额外的参数位于 \$2 ,因为这个选项占用了两个参数位,所以还需要使用 shift 命令多移动一个位置
+
+#### 使用 getopt 命令
+
+1.  命令的格式:
+
+    ```shell
+    getopt optstring parameters
+    ```
+
+    optstring定义了命令行有效的选项字母,还定义了哪些选项字母需要参数值(在需要参数值得选项字母后加一个冒号)
+
+    ```shell
+    # 例子
+    getopt ab:cd -a -b test1 -cd test2 test3
+    ```
+
+    getopt 会自动将合并得选项拆开,并添加双破折号来分隔其他参数
+
+    如果指定了一个没有在 optstring 中定义的选项,getopt命令会产生一条错误消息
+
+    可以使用 -q 选项忽略错误信息
+
+2.  在脚本中使用 getopt
+
+    使用 getopt 格式化后的命令行参数替换原始的命令行参数
+
+    ```shell
+    set -- $(getopt  ab:cd "$@") # set的 -- 选项会将后面的参数按位置放入脚本变量
+    ```
+
+    getopt 不能处理带空格和引号的参数值
+
+#### 使用更高级的 getopts
+
+每次调用 getopt 命令会处理命令行上检测到的一个参数,处理完所有的参数后,会退出并返回一个大于0的状态码, getopts 格式如下:
+
+```shell
+getopt optstring variable # variable 会保存当前检测到的选项
+```
+
+getopts 会用到两个环境变量,选项的参数会保存在 OPTARG 环境变量中,OPTIND 保存了getopts 正在处理的参数的位置
+
+```shell
+echo
+while getopts :ab:c opt
+do
+	case "$opt" in
+		a) comands;;
+		b) commands with "$OPTARG";;
+		c) commands;;
+		*) commands;;
+	esac
+done
+```
+
+getopts 命令解析命令行选项时会移除开头的单破折号,所以在 case 定义中不用但破折号
+
+getopts 功能:
+
+*   参数值可以包含空格
+*   选项和参数连写,不用加空格
+*   将未定义的选项同一输出成问号
+
+getopts 处理每个选项时会将 OPTIND 环境变量值增一
+
+### 将选项标准化
+
+Linux 中有一些常用选项
+
+![常用选项](常用选项.jpg)
+
+### 获取用户输入
+
+#### 基本的读取
+
+```shell
+rean variable# 读取命令,read 会将数据放进一个变量(如不指定会将数据放入特殊的环境便令REPLY中)
+	- p # 直接在 read 指定提示符
+```
+
+#### 超时
+
+```shell
+	-t # 指定 read 命令等待输入的秒数(计时器过期,read 命令会返回非零状态码)
+	-nN # 指定 read 命令读取一定数量的字符后退出
+```
+
+#### 隐藏方式读取
+
+```shell
+	-s # 避免输入数据出现在显示器上(实际上会显示,只是文本颜色和背景色一样)
+```
+
+#### 从文件中读取
+
+每次调用 read 命令会从文件中读取一行文本,当再没内容时,read 命令退出并返回非零状态码
+
+常见使用方式如下:
+
+```shell
+cat test | while read line
+do
+	commands with $line
+done
+```
+
