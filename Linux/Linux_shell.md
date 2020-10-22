@@ -2068,3 +2068,129 @@ exec 0< testfile # 使脚本从 testfile 获得输入,而不是 STDIN
 
 #### 创建输出文件描述符
 
+使用 exec 命令给输出分配文件描述符
+
+```shell
+exec 3>tset3out
+ehco "This should be stored in the file" >&3 # 这个语句会被重定向到文件中
+```
+
+#### 重定向文件描述符
+
+```shell
+exec 3>&1 # 使 3 指向 STDOUT
+exec 1>test4out # 将 STDOUT 重定向到文件
+echo "This should store in the output file" # 这是一条标准输出 STDOUT
+exec 1>&3 # 将 1 重新指向 STDOUT
+```
+
+#### 创建输入文件描述符
+
+将 STDIN 指向另一个文件描述符
+
+```shll
+exec 6<&0 # 使 6 指向 STDIN
+exec 0< testfile # 从文件获取 STDIN
+while read line
+do
+	echo "$line"
+done
+exec 0<&6 # 使 0 重新指向 STDIN
+```
+
+#### 创建读写文件描述符
+
+使用单个文件描述符同时作为输入和输出
+
+```shell
+exec 3<> testfile # 将 3 同时作为输入和输出描述符
+read line <&3
+```
+
+由于对同一个文件进行数据读写,shell 会维护一个内部指针,指明在文件中的当前位置,任何读写都会从文件指针上次的位置开始
+
+#### 关闭文件描述符
+
+如果在脚本中创建了新的输入或者输入文件描述符,shell 会在脚本退出时自动关闭它们
+
+手动关闭可以使用
+
+```shell
+exec 3>&- # 关闭文件描述符3
+```
+
+### 列出打开的文件描述符
+
+使用 lsof 命令会列出整个 Linux 系统打开的所有文件描述符
+
+```shell
+lsof # 显示所有文件信息
+	-p # 指定PID
+	-d # 指定文件描述符编号
+```
+
+### 阻止命令输出
+
+运行在后台的脚本出现错误信息,shell 会通过邮件将它们发给进程的属主
+
+可以将输出消息重定向到 /dev/null,来丢弃消息
+
+### 创建临时文件
+
+使用 mktemp 命令可以在 /tmp 目录中创建一个唯一的临时文件(不使用默认的 umask 值)
+
+#### 创建本地临时文件
+
+指定一个文件名模板,后缀为6个X即可,在本地目录中创建临时文件
+
+```shell
+mktemp test.XXXXXX
+```
+
+#### 在 /tmp 目录创建临时文件
+
+-t 选项会强制在系统的临时目录创建该文件,命令会返回创建文件的全路径
+
+可以在系统的任何目录下引用该临时文件
+
+#### 创建临时目录
+
+-d 选项,创建临时目录而不是文件
+
+### 记录消息
+
+使用 tee 命令可以将输出同时发送到显示器和日志文件
+
+```shell
+tee filename # 默认覆盖输出
+	-a # 追加输出
+```
+
+#### 实例
+
+读取 .csv 格式文件,输出 SQL INSERT 语句文件
+
+```shell
+#!/bin/bash
+# read file and create INSERT statements for MySQL
+
+outfile='members.sql'
+IFS=','
+while read lname fname address city state zip
+do
+	cat >> $outfile << EOF
+	INSERT INTO members (lname,fname,address,city,state,zip) VALUES ('$lname','$fname','$address','$city','$state','$zip');
+EOF
+done < $(1)
+```
+
+`done < $(1)`
+
+while 循环使用 read 语句从数据文件中读取文件
+
+`cat >> $outfile <<EOF`
+
+cat 从后面语句获取输入,然后输出被重定向到了文件
+
+## 控制脚本
+
