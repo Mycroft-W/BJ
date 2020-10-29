@@ -2379,3 +2379,64 @@ atd 守护进程会检查系统上的一个特殊目录(通常位于/var/spool/a
     *   也可以指定时间增量,比如 now + 25min
 
     在使用 at 命令时,该作业会被提交到作业队列(job queue)
+    
+2.  获取作业的输出
+
+    Linux 系统会将作业的输出通过邮件系统发送给用户
+
+    at 命令利用 sendmail 应用程序发送邮件
+    可以使用重定向获得输出信息或使用 -M 选项屏蔽产生的信息
+
+3.  列出等待的作业
+
+    使用 atq 命令,会显示作业号,运行时间,所在队列
+
+4.  删除作业
+
+    使用 atrm 命令,指定作业号即可,但只能删除自己的作业
+
+#### 安排需要定期执行的脚本
+
+cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取要执行的作业
+
+1.  cron 时间表
+
+    ```shell
+    # 格式如下
+    min hour dayofmonth month dayofweek command
+    ```
+
+2.  构建 cron 时间表
+
+    ```shell
+    crontab
+    	-l # 查看已有的内容
+    	-e # 添加条目
+    ```
+
+3.  浏览 cron 目录
+
+    有四个预配置的 cron 脚本目录
+
+    hourly,daily,monthly,weekly
+
+    只要将脚本置入对应目录下,就会按周期执行
+
+4.  anacron 程序
+
+    anacron 程序使用自己的时间表(/etc/anacrontab)来检查作业,如果某个作业错过了执行时间,anacron 会尽快运行该作业,但只会处理位于 cron 目录的作业,并且不会处理间隔小于一天的作业
+
+    anacron 时间表
+
+    ```shell
+    # 格式如下
+    period delay identifier command
+    运行间隔(以天为单位) 系统启动后等待时间开始运行错过的脚本 标识日志消息和错误邮件中的作业 作业
+    ```
+
+#### 使用新 shell 启动脚本
+
+每次启动一个新 shell 时, bash shell 会运行 .bashrc 文件,可以将脚本放入该文件,使得在打开一个 bash shell 时,脚本会自动运行
+
+## 创建函数
+
