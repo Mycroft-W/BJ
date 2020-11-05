@@ -2216,7 +2216,7 @@ bash shell 允许使用键盘上的组合键生成两种基本的 Linux 信号
 
 2.  暂停进程
 
-    `Ctrl+Z`组合键会生成一个 SIGSTP 信号,停止 shell 中运行的任何进程.停止(stopping)和终止(terminating)不同,停止进程会让程序继续保留在内存中,并能从上次停止的位置继续运行
+    `Ctrl+Z`组合键会生成一个 SIGTSTP 信号,停止 shell 中运行的任何进程.停止(stopping)和终止(terminating)不同,停止进程会让程序继续保留在内存中,并能从上次停止的位置继续运行
 
     在停止一个进程时, shell 会进行通知,并给停止的进程分配一个作业号(job number)
 
@@ -2439,4 +2439,17 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 每次启动一个新 shell 时, bash shell 会运行 .bashrc 文件,可以将脚本放入该文件,使得在打开一个 bash shell 时,脚本会自动运行
 
 ## 创建函数
+
+### 基本的脚本函数
+
+#### 创建函数
+
+第一种格式采用关键字 function
+
+```shell
+function name {
+	commands
+}
+# name 定义了函数的名称
+```
 
