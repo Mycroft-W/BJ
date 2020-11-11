@@ -592,7 +592,7 @@ PATH=$PATH:/home/user/scripts # 在PATH中添加新的目录
 
 ### 数组变量
 
-要给莫格环境变量设置多个值，可以把值放在括号里，值与值之间用空格分隔
+要给环境变量设置多个值，可以把值放在括号里，值与值之间用空格分隔
 
 ~~~shell
 mytest=(one two three four five)
@@ -2452,4 +2452,332 @@ function name {
 }
 # name 定义了函数的名称
 ```
+
+第二种类似其他语言的方式
+
+```shell
+name() {
+commands
+}
+# 函数名后的空括号表示正在定义的是一个函数
+```
+
+#### 使用函数
+
+在使用前定义函数,调用函数直接使用函数名即可
+
+重复定义同名函数,会覆盖定义
+
+### 返回值
+
+#### 默认退出状态码
+
+默认情况下,函数的退出状态码是函数中最后一条命令返回的退出状态码
+
+#### 使用 return 命令
+
+bash shell 使用 return 命令来推出函数并返回特定的退出状态码
+
+```shell
+function name {
+	commands
+	return N
+}
+name() {
+commands
+return N
+}
+# N 为指定的返回值(必须是0~255)
+```
+
+#### 使用函数输出
+
+可以将函数的返回值存入变量使用
+
+```shell
+name() {
+commands
+return N
+}
+result=$(name) | result=`name`
+# 将函数 name 的返回值保存在变量 result 中
+```
+
+### 在函数中使用变量
+
+#### 向函数传递参数
+
+函数可以使用标准的参数环境变量来表示命令行上传给函数的参数,使用格式:
+
+```shell
+funname() {
+sum=$(($1 + $2))
+echo $sum
+}
+funname value1 value2 # 可以使用变量 $value
+```
+
+需要注意的是**函数中的位置变量和脚本中的不同,函数要使用脚本中的需要手动传递**
+
+```shell
+value1=$1
+value2=$2
+funname value1 value2 
+funname $1 $2
+```
+
+#### 在函数中处理变量
+
+作用域是变量生效的区域,函数中的变量和普通变量的作用域不同
+
+函数使用两种类型的变量:
+
+*   全局变量
+*   局部变量
+
+1.  全局变量
+
+    全局变量是在 shell 脚本中任何地方都有效的变量;默认情况下,在脚本中定义的任何变量都是全局变量
+
+2.  局部变量
+
+    函数内部使用的任何变量都可以被声明成局部变量;使用 local 关键字进行声明
+
+    ```shell
+    local temp 或
+    local temp=value
+    ```
+
+    local 关键字限制了变量的作用域为该函数中;如果函数外有同名函数, shell 会保证两个变量的值是分离的
+
+### 数组变量和函数
+
+#### 向函数传递数组参数
+
+使用以下形式
+
+```shell
+funname ${array[*]}
+```
+
+在函数内部重建数组变量,然后使用
+
+```shell
+newarray=($(echo $@))
+```
+
+#### 从函数返回数组
+
+同理,输出使用以下形式
+
+```shell
+echo ${newarray[*]}
+```
+
+从脚本接收函数输出后,重建数组
+
+```shell
+result=($(funname ${array[*]}))
+```
+
+### 函数递归
+
+局部变量自成体系,不需要外部资源,所以可以递归地调用
+
+比如计算阶乘
+
+```shell
+function factorial{
+	if [$1 -eq 1]
+	then
+		echo 1
+	else
+		local temp=$ [ $1 -1 ]
+		local result=`factorial $temp`
+		echo $[ $result * $1 ]
+	fi
+}
+```
+
+### 创建库
+
+bash shell 允许创建库函数文件,然后在多个脚本中引用该库文件
+
+写好库文件后,在要引用的文件内使用以下方法
+
+```shell
+source /script_lib
+. /script_lib
+```
+
+source 命令会在当前 shell 上下文中执行命令, source 有个别名,称为*点操作符*(dot operator)
+
+### 在命令行上使用函数
+
+#### 在命令行上创建函数
+
+一种是采用单行方式定义函数
+
+```shell
+function funname { command; command; }
+```
+
+第二种是用多行方式
+
+#### 在 .bashrc 文件中定义函数
+
+1.  直接定义函数
+
+    在 .bashrc 文件中定义函数
+
+2.  读取函数文件
+
+    使用 source 命令引用库文件
+
+## 图形化桌面环境中的脚本编程
+
+### 创建文本菜单
+
+通常菜单脚本会清空显示区域,然后显示可用的选项列表
+
+shell 脚本菜单的核心是 case 命令
+
+#### 创建菜单布局
+
+例如
+
+```shell
+clear
+echo
+echo -e "\t\t\tSys Admain Menu\n"
+echo -e "\t1.Display disk space"
+echo -e "\t2.Display logged on users"
+echo -e "\t3.Display memory useage"
+echo -3 "\t0.Exit menu\n\n"
+echo -en "\t\tEnter option: "
+```
+
+然后使用 read 命令获取用户输入
+
+```shell
+read option
+```
+
+#### 创建菜单函数
+
+为每个菜单选型创建独立的 shell 函数;同时将菜单布局也作为一个函数创建
+
+#### 添加菜单逻辑
+
+使用 case 命令处理选项
+
+```shell
+case $option in
+0)break ;;
+1)diskspace ;;
+2)whoseon ;;
+3)memusage ;;
+*)clear;echo "Sorry, wrong selection" ;;
+esac
+```
+
+#### 整合 shell 脚本菜单
+
+将以上的函数补全,组合卸载一个脚本中
+
+#### 使用 select 命令
+
+ select 命令只需要一条命令就可以创建出菜单,然后获取输入的答案并自动处理
+
+```shell
+select variable in list
+do
+	commands
+done
+```
+
+select 会将每个列表项显示成一个代编号的选项,并自动生成一个菜单
+
+要注意的是**存储在变量中的结果值是整个文本字符串而不是关联的数字,在 case 中使用文本字符串作为选项**
+
+### 制作窗口
+
+#### dialog 包
+
+dialog 命令使用命令行参数来决定生成那种窗口部件(widget)
+
+![](dialog部件.jpg)
+
+![](dialog续.jpg)
+
+在命令行上指定某个特定的部件
+
+```shell
+dialog --widget parameters
+# widget 是部件名
+# parameters 定义窗口大小以及部件需要的文本
+```
+
+每个 dialog 部件都提供了两种形式的输出
+
+*   使用 STDERR
+*   使用退出状态码
+
+1.  msgbox 部件
+
+    msgbox 会在窗口中显示一条简单的消息,直到用户单击 OK 按钮后消失
+
+    ```shell
+    dialog --msgbox text height width
+    ```
+
+    text 是在窗口中显示的字符串, dialog 会根据 height 和 width 参数创建的窗口大小自动换行,使用 -\-title 参数可以在窗口顶部显示一个标题
+
+    ~~~shell
+    dialog --title Testing --msgbox "this is a test window" 30 50
+    ~~~
+
+2.  yesno 部件
+
+    yesno 允许用户选择 yes 或 no,退出状态码为 yes-0,no-1
+
+    ```shell
+    dialog --title "Please answer" --yesno "Is this thing on?" 10 20
+    ```
+
+3.  inputbox 部件
+
+    inputbox 提供了一个简单的文本框区域来输入文本字符串,dialog 命令会将文本字符串的值发给 STDERR, inputbox 提供了两个按钮:OK(0) 和Cancel(1)
+
+    ```shell
+    dialog --inputbox "Enter your age:" 10 20 2>age.txt
+    ```
+
+4.  textbox 部件
+
+    textbox 部件会生成一个滚动窗口来显示由参数指定的文件中的文本
+
+    ```shell
+    dialog --textbox /etc/passwd 15 45
+    ```
+
+5.  menu 部件
+
+    menu 允许创建一个菜单
+
+    ```shell
+    dialog --menu "Sys Admin Menu" 20 30 10 1 "some" 2 "some" 3 "some" 2> test.txt
+    ```
+
+    第一个参数定义了菜单的标题,之后的两个是窗口高和宽,第四个则定义了在窗口中一次显示的菜单项总数;在这些参数后的是菜单项对,菜单标号和文本
+
+6.  fselect 部件
+
+    fselect 提供了一个浏览选择文件的窗口
+
+    ```shell
+    dialog --title "Select a file" --fselect $HOME/ 10 50 2>file.txt
+    ```
+
+    fselect 后的第一个参数是窗口使用的起始目录位置
 
