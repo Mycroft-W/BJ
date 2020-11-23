@@ -31,4 +31,3 @@ dd if=/dev/zero of=/dev/sda # 清除 sda 上的数据
 
 dd if=/dev/zero of=foobar count=1024 bs=1024 # 创建一个1M的文件叫 foobar；count 块数量；bs 块大小
 ~~~
-
