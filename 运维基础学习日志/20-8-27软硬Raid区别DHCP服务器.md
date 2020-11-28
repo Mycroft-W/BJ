@@ -42,13 +42,17 @@ DHCP(Dynamic Host Configuration Protocol)动态主机配置协议
 
 4. 服务器确定租约（发DHCPACK/DHCPNAK广播包）*租约为有线8天，无线8小时*
 
+![DHCP租约](DHCP租用.png)
+
 ### DHCP续租过程
 
-1. 客户端使用租约达到50%；开始向服务器发起单播，续租
+1. 客户端使用租约达到50%；开始向服务器发起单播(REQUEST包)，续租
 
-2. 服务器无法连接，继续使用租约，到87.5%；开始向局域网发起（REQUEST包）广播，续租
+2. 服务器无法连接，继续使用租约，到87.5%发起（REQUEST包）广播，续租
 
 3. 无可用服务器，继续使用租约，到100%；向局域网发起（DISCOVER包）广播，查询新的DHCP服务器，重新租用IP
+
+![DHCP续租](DHCP续租.png)
 
 ### DHCP实验（Windows）
 
