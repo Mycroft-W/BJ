@@ -69,66 +69,66 @@ Ubuntu使用
 
 ### 基本shell命令
 
-~~~shell
+```shell
 cd # 切换目录
 
 ls # 显示当前目录下文件和目录
     -l # 显示详细信息
-~~~
+```
 
 #### 处理文件
 
-~~~shell
+```shell
 touch # 创建文件
 
 cp # 复制文件
     -p # 递归复制
-~~~
+```
 
 #### 链接文件
 
-~~~shell
+```shell
 ln # 硬链接
     -s # 软连接
-~~~
+```
 
 #### 移动重命名
 
-~~~shell
+```shell
 mv # 移动文件或者重命名
-~~~
+```
 
 #### 删除文件
 
-~~~shell
+```shell
 rm # 删除文件
     -i # 提示是否删除
     -f # 强制删除
     -r # 删除文件及目录
-~~~
+```
 
 #### 建立目录
 
-~~~shell
+```shell
 mkdir # 新建目录
     -p# 建立多级目录
-~~~
+```
 
 #### 删除目录
 
-~~~shell
+```shell
 rmdir # 删除空目录
-~~~
+```
 
 #### 查看文件类型
 
-~~~shell
+```shell
 file # 查看文件类型（编码、脚本、可执行）
-~~~
+```
 
 #### 查看文本文件内容
 
-~~~shell
+```shell
 cat # 显示文本
     -n # 显示行号
     -s # 去掉多余空白行
@@ -145,18 +145,18 @@ tail # 显示尾部内容（默认10行）
 
 head # 显示头部内容（默认10行）
     -n # 指定行数
-~~~
+```
 
 ### 监测程序
 
 #### 探查进程
 
-~~~shell
+```shell
 ps # 显示进程信息
     -A # 显示所有进程
     -f # 显示完整信息
     -l # 显示长格式信息
-~~~
+```
 
 ps中的信息：
 
@@ -180,13 +180,13 @@ S：进程状态（O：正在运行；S：休眠；R：可运行；Z：僵化，
 
 #### 实时显示
 
-~~~shell
+```shell
 top # 实时显示进程信息
 # top运行时的命令
     f # 选择输出排序的字段
     d # 修改轮询间隔
     q # 退出top
-~~~
+```
 
 top中的信息：
 
@@ -218,11 +218,11 @@ COMMAND：启动的程序名
 
 #### 结束进程
 
-~~~shell
+```shell
 kill # 给进程发送控制信号，默认为TERM；只能用进程的PID
     -n # 指定信号（用信号名或信号值）
 killall # 支持通过进程名来结束进程，也支持通配符
-~~~
+```
 
 |信号值 | 信号名 | 描述                   |
 |------ | ------ | ---------------------------- |
@@ -240,50 +240,50 @@ killall # 支持通过进程名来结束进程，也支持通配符
 
 #### 挂载存储媒体
 
-~~~shell
+```shell
 mount -t type device directory # 挂载指定设备
 # type指定磁盘文件系统类型，device设备名，directory挂载点
-~~~
+```
 
 #### 取消挂载
 
-~~~shell
+```shell
 umount direcorty device # 卸载，支持通过设备文件或是挂载点卸载
-~~~
+```
 
 #### 查看挂载磁盘信息
 
-~~~shell
+```shell
 df # 显示已挂载设备信息
     -h # 使用易读形式显示
 
 du # 显示某个特定目录（默认当前目录）的磁盘使用情况，一磁盘块为单位
     -h # 使用易读形式显示
-~~~
+```
 
 ### 处理数据文件
 
 #### 数据排序
 
-~~~shell
+```shell
 sort file1 # 对文本中的数据进行排序
     -n # 将数字识别为数字而不是字符
     -r # 反向排序
 
 uniq file # 删除重复行(必须是相邻的)
     -c # 统计重复行的数量
-~~~
+```
 
 #### 搜索数据
 
-~~~shell
+```shell
 grep [options] pattern [file] # 在指定文件中查找包含匹配指定模式的字符的行（可使用正则表达式）
     -r # 反向搜索（输出不匹配的行）
     -n # 显示行号
     -c # 只显示有多少行包括匹配的模式
     -e # 指定多个匹配模式，使用-e来指定每个模式
     -q # 静默模式,不产生输出;匹配成功返回0,否则为1
-~~~
+```
 
 #### 压缩数据（单个文件）
 
@@ -294,27 +294,27 @@ grep [options] pattern [file] # 在指定文件中查找包含匹配指定模式
 |gzip（单个文件，不保留源文件） |  .gz   |
 |zip（可以打包)                  | .zip       |
 
-~~~shell
+```shell
 gzip file # 压缩指定文件（可使用通配符批量压缩）
 
 gzcat # 查看压缩过的文本文件的内容
 
 gunzip # 解压文件
-~~~
+```
 
 #### 归档文件
 
-~~~shell
+```shell
 tar function [options] object1 object2 ... # 将指定文件按选项归档
-    - # 列出已归档文件内容
-    - # 切换到指定目录
-    - # 输出结果到文件
-    - # 在处理时显示文件
+    -c # 创建新的归档文件
+    -t # 列出已归档文件内容
+    -f # 输出结果到文件
+    -v # 在处理时显示文件
 # 例子
 tar -cvf test.tar test/ test2/ # 将目录 test 和 test2 归档到 test.tar 文件
 tar -tf test.tar # 查看 test.tar 内容
 tar -xvf test.tar # 提取 test.tar 内容
-~~~
+```
 
 **窍门：** 以 .tgz 结尾的文件是gzip压缩过的tar文件，可以使用命令`tar -zxvf filename.tgz` 来解压
 
@@ -345,23 +345,23 @@ shel 程序位于：/bin 目录下
 
 命令列表：在命令间加入`;.，命令会依次执行
 
-~~~shell
+```shell
 #例如
 pwd ; ls ; cd /etc ; pwd ; cd ; pwd ; ls
-~~~
+```
 
 进程列表：命令列表加上括号（进程列表会生成一个子shell来执行命令）
 
-~~~shell
+```shell
 #例如
 (pwd ; ls ; cd /etc ; pwd ; cd ; pwd ; ls)
-~~~
+```
 
 可以使用环境变量命令查看是否生成了.shell
 
-~~~shell
+```shell
 echo $BASH_SUBSHELL
-~~~
+```
 
 #### 子shell用法
 
@@ -369,44 +369,44 @@ echo $BASH_SUBSHELL
 
 在后台模式中运行命令可以在处理命令的同时让出CLI，以供使用；在命令末尾加上字符`&.将命令置入后台模式
 
-~~~shell
+```shell
 # 例子
 sleep 300&
-~~~
+```
 
 在执行上述例子后，会输出两条信息，第一条是显示在方括号中的*后台作业号（backgroun.job）* ，第二条是后台作业的进程ID
 
 显示后台作业信息
 
-~~~shell
+```shell
 jobs # 显示后台作业信息
     -p # 显示命令的PID
-~~~
+```
 
 ##### 将进程列表置入后台
 
-~~~shell
+```shell
 # 例子
 (sleep 2 ; echo $BAUSH_SUBSHELL ; sleep 2)&
-~~~
+```
 
 ##### 协程
 
 协程可以同时做两件事。在后台生成一个.shell，并在这个子 shell 中执行命令。
 
-~~~shell
+```shell
 # 例子
 coproc sleep 10
-~~~
+```
 
 可以使用命令的拓展语法设置协程名（默认为COPROC）
 
 格式：coproc 协程名 { 命令； } ；第一个花括号和协程名之间有一个空格；命令以分号结尾；分号和闭花括号之间也有空格
 
-~~~shell
+```shell
 # 例子
 coproc MY_Job { sleep 10; } # 注意格式
-~~~
+```
 
 #### shell的内建命令
 
@@ -414,7 +414,7 @@ coproc MY_Job { sleep 10; } # 注意格式
 
 也称为文件系统命令，是存在于 bash shell 之外的程序。通常位于/bin、/usr/bin、/sbin或/usr/sbin中
 
-~~~shell
+```shell
 # 使用which可以显示命令位置
 which ps # 显示ps命令位置
 
@@ -422,7 +422,7 @@ which ps # 显示ps命令位置
 # 使用type可以显示命令的类型
 # 例子
 type -a ps # 显示ps命令类型
-~~~
+```
 
 当外部命令执行时，会创建出一个子进程。这种操作被称为衍生（forking）。
 
@@ -430,7 +430,7 @@ type -a ps # 显示ps命令类型
 
 内建命令不需要使用子进程来执行，有些命令有多种实现。例如echo和pwd既有内建命令也有外部命令
 
-~~~shell
+```shell
 history # 命令执行历史
 # 命令历史记录被保存在隐藏文件.bash_history 中，位于用户的主目录
 # bash的命令记录缓存在内存中，当shell退出时才写入文件
@@ -443,7 +443,7 @@ alias# 别名
     -p # 当前可用别名
 # 例子
 alias li='ls -li' # 创建别名
-~~~
+```
 
 ### Linux环境变量
 
@@ -460,7 +460,7 @@ bash shell 使用环境变量（environment variable）特性来存储有关shel
 
 全局变量对于shell会话和所有生成的子shell都可见。系统环境变量基本都是使用全大写字母，以区别普通用户的环境变量。可以使用env或printenv命令查看全局变量
 
-~~~shell
+```shell
 printenv # 查看全局环境变量，也可使用env命令
 
 printenv 变量名 # 查看个别变量，不能使用env命令
@@ -468,15 +468,15 @@ printenv 变量名 # 查看个别变量，不能使用env命令
 # 可以使用echo显示变量值，在环境变量前加上$（美元符）
 # 例子
 echo $HOME # 输出HOME变量值
-~~~
+```
 
 #### 局部环境变量
 
 局部变量只能在定义它们的进程中可见，用户可以自定义自己的局部变量，被称为用户定义局部变量
 
-~~~shell
+```shell
 set # 显示全部变量（包括全局变量、局部变量和用户定义变量），并按照字母顺序排序
-~~~
+```
 
 ### 用户定义变量
 
@@ -484,21 +484,21 @@ set # 显示全部变量（包括全局变量、局部变量和用户定义变�
 
 在shell中，通过等号给环境变量赋值，值可以是数值或字符串。只能在当前shell中使用
 
-~~~shell
+```shell
 my_variable=Hello # 变量赋值，变量名、等号和值之间没有空格
 |在自定义局部变量时，使用小写字母避免重新定义系统变量
 
-~~~
+```
 
 #### 设置全局环境变量
 
 先创建一个局部环境变量，然后通过`exprot`命令将它导出到全局环境中
 
-~~~shell
+```shell
 my_variable="I am Global now" # 创建局部变量
 
 exprot my_variable # 导出到全局环境
-~~~
+```
 
 在子shell中修改全局变量不会影响父shell中的值（使用export命令也不行）
 
@@ -506,9 +506,9 @@ exprot my_variable # 导出到全局环境
 
 使用`unset`命令，在`unset`命令中引用环境变量时，不要用$
 
-~~~shell
+```shell
 unset my_variable # 删除变量
-~~~
+```
 
 在子shell 中删除全局环境变量，只对子shell有效。
 
@@ -532,9 +532,9 @@ PATH环境变量定义了用于进行命令和程序查找的目录
 
 将新的搜索目录添加到现有的PATH环境变量中，需要引用原来的PATH值，然后添加新的目录
 
-~~~shell
+```shell
 PATH=$PATH:/home/user/scripts # 在PATH中添加新的目录
-~~~
+```
 
 ### 定位系统环境变量
 
@@ -589,9 +589,9 @@ PATH=$PATH:/home/user/scripts # 在PATH中添加新的目录
 
 要给环境变量设置多个值，可以把值放在括号里，值与值之间用空格分隔
 
-~~~shell
+```shell
 mytest=(one two three four five)
-~~~
+```
 
 使用索引值来引用一个数组元素
 
@@ -641,11 +641,11 @@ Linux为系统账户预留了500以下的UID值
 
 #### 添加新用户
 
-~~~shell
+```shell
 useradd # 添加用户（会使用默认值及命令行参数来设置）
     —D # 查看设置默认值（后跟选项修改默认设置）
     -m # 创建HOME目录，并添加模板文件
-~~~
+```
 
 系统默认值被设置/etc/default/useradd文件中
 
@@ -653,14 +653,14 @@ useradd # 添加用户（会使用默认值及命令行参数来设置）
 
 #### 删除用户
 
-~~~shell
+```shell
 userdel # 删除用户（不删除用户的HOME目录）
     -r # 删除用户目录及邮件目录
-~~~
+```
 
 #### 修改目录
 
-~~~shell
+```shell
 usermod # 修改/etc/passwd文件字段
     -u # 修改用户账户的登录名
     -L # 锁定账户，使用户无法登录
@@ -683,7 +683,7 @@ chage # 管理用户的有效期
     -E # 设置密码过期的日期
     -I # 设置密码过期到锁定账户的天数
     -W # 设置密码过期前多久开始出现提醒信息
-~~~
+```
 
 ### Linux组
 
@@ -700,20 +700,20 @@ chage # 管理用户的有效期
 
 #### 创建新组
 
-~~~shell
+```shell
 groupadd # 创建新组
 
 # 使用usermod添加用户
 usermod -G 组名 用户名
-~~~
+```
 
 #### 修改组
 
-~~~shell
+```shell
 groupmod # 修改组
     -G # 修改已有组的GID
     -n # 修改组名
-~~~
+```
 
 ### 文件权限
 
@@ -733,7 +733,7 @@ groupmod # 修改组
 
 #### 默认权限
 
-~~~shell
+```shell
 umas.# 设置所创建文件和目录的默认权限
 # umask是掩码，他会屏蔽掉不想授予该安全级别的权限
 # 例子
@@ -741,7 +741,7 @@ umas.# 设置所创建文件和目录的默认权限
 0022
 # 第一位代表了一项特别的安全特性，叫做粘着位（sticky bit）
 # 后三位标识文件或目录对应的umask八进制值
-~~~
+```
 
 ![文件权限码](Linux文件权限码.jpg)
 
@@ -751,13 +751,13 @@ umask值通常设置在/etc/profile启动文件中，有些是在/etc/login.defs
 
 #### 安全性设置
 
-~~~shell
+```shell
 chmod # 改变文件和目录的安全性设置
     -r # 权限得改变递归地作用到文件和子目录
 ##格式
 chmod options mode file # mode参数可以用八进制模式或者符号模式进行安全性设置
 # 八进制文件权限会自动应用到指定的文件上
-~~~
+```
 
 符号模式权限的格式
 
@@ -785,15 +785,15 @@ chmod options mode file # mode参数可以用八进制模式或者符号模式�
 * g 将权限设置为跟属组一样
 * o 将权限设置跟其他用户一样
 
-~~~shel
+```shel
 # 例子
 chmo.o+r newfile # 为其他用户添加读取权限
 chmo.u-x newfile # 移除属主已有的执行权限
-~~~
+```
 
 #### 改变所属关系
 
-~~~shell
+```shell
 chow.# 改变文件的属主（只有root能改变文件的属主）
     -.# 递归改变
     -.# 改变该文件的所有符号链接文件的所属关系
@@ -802,7 +802,7 @@ chow.options owner.[group] file
 
 chgr.# 改变文件的默认属组（文件的属主能更改属组，还得是新组的成员
 
-~~~
+```
 
 ### 共享文件
 
@@ -868,7 +868,7 @@ Linux中有三种保护等级不同的日志方法
 
 #### 创建分区
 
-~~~shell
+```shell
 fdis.# 分区工具（交互程序）
 # 格式
 fdis.设备名（绝对路径）
@@ -879,7 +879,7 @@ fdis.设备名（绝对路径）
     q # 退出，不保存更改
     w # 将分区表写入磁盘
     p # 显示设备详细信息
-~~~
+```
 
 #### 创建文件系统
 
@@ -887,24 +887,24 @@ fdis.设备名（绝对路径）
 
 ![格式化](格式化.jpg)
 
-~~~shell
+```shell
 # 格式化
 命令 分区
 # 例子
 mkfs.ext4 /dev/sdb1 # 将ext4文件系统写入sdb1分区
-~~~
+```
 
 在创建文件系统后，将其挂载到虚拟目录下的挂载点，就可使用了
 
-~~~shell
+```shell
 mount # 挂载命令（临时挂载，重启失效）
     -t # 指明要挂载的文件系统类型
 # 要自动挂载可将信息添加到/etc/fstab文件
-~~~
+```
 
 #### 文件系统的检查可修复
 
-~~~shell
+```shell
 fsck # 检查修复文件系统
     -t # 指定文件系统类型（未挂载的设备需要使用）
     -a|-y # 如果检测到错误，自动修复
@@ -912,7 +912,7 @@ fsck # 检查修复文件系统
     -V # 详细输出
 # 格式
 fsck options filesystem # 文件系统可以通过设备名、挂载点、UUID引用
-~~~
+```
 
 ### 逻辑卷管理
 
@@ -951,39 +951,39 @@ fsck options filesystem # 文件系统可以通过设备名、挂载点、UUID�
 
     将硬盘上的物理分区转换为Linu.LVM的物理卷区段，使用`fdisk`命令，通过`t`命令改变分区类型（8e类型表示分区会作为Linux LVM系统的一部分）；然后通过`pvcreate`命令创建实际的物理卷
 
-    ~~~shell
+    ```shell
     pvcreat./dev/sdb1 # 创建物理卷
     pvdispla./dev/sdb1 # 查看物理卷信息
-    ~~~
+    ```
 
 2. 创建卷组
 
-    ~~~shell
+    ```shell
     vgcread Vol1（卷组名） /dev/sdb1 # 创建卷组
     vgdispla.Vol1 # 查看卷组信息
-    ~~~
+    ```
 
 3. 创建逻辑卷
 
-    ~~~shell
+    ```shell
     lvcreate -l 100%FREE -n lvtest Vol1 # 创建逻辑卷使用全部空闲空间，卷名lvtest，在Vol1卷组创建
         -l # 指定分配区段数，或百分比
         -L # 指定使用大小（KB、MB、GB）
         -n # 指定逻辑卷名
         -lvdispla.Vol1# 查看逻辑卷信息
-   ~~~
+   ```
 
 4. 创建文件系统
 
-    ~~~shell
+    ```shell
     mkfs.ext4 /dev/Vol1/lvtest # 在逻辑卷lvtest中写入ext4文件系统
-    ~~~
+    ```
 
 5. 挂载使用
 
-    ~~~shell
+    ```shell
     mount /dev/Vol1/lvtest /mnt/my_partition # 将lvtest卷挂载至/my_partition
-    ~~~
+    ```
 
 **注意**：在写入文件系统和挂载使用时，使用卷组名和逻辑卷名，而不是物理分区路径
 
@@ -1032,38 +1032,38 @@ PMS利用一个数据库记录相关内容
 
 aptitude具有交互界面，也可使用单个命令的方式
 
-~~~shell
+```shell
 aptitude show package_name # 显示某个特定包的详细信息，但无法显示安装的相关包
 
 dpkg -l package_name # 列出了安装的所有相关的包
 
 dpkg --search absolute_file_name # 查看特定文件属于那个软件包（使用绝对路径）
-~~~
+```
 
 #### 用aptitude安装软件包
 
-~~~shell
+```shell
 aptitude search package_name # 查找包（隐式添加通配符）
 |i 表示已经安装；p或v表示包可用，但没安装；c 表示包被删除，但配置还在
 
 aptitude install package_name # 安装指定包（自动安装包依赖）
-~~~
+```
 
 #### 用aptitude更新软件
 
-~~~shell
+```shell
 aptitude safe-upgrade # 更新系统上所有包（自动检查依赖）
 
 aptitude full-upgrade # 更新系统所有包（不检查依赖）
 aptitude dist-upgrade # 同上
-~~~
+```
 
 #### 用aptitude卸载软件
 
-~~~shell
+```shell
 aptitude remove package_name # 只卸载包，不删除数据和配置
 aptitude purge package_name # 完全删除包
-~~~
+```
 
 #### aptitude仓库
 
@@ -1079,7 +1079,7 @@ aptitude purge package_name # 完全删除包
 
 #### 列出已安装包
 
-~~~shell
+```shell
 yum list installed # 列出系统上已安装的包
 
 yum list package_name # 查看指定包的信息
@@ -1087,51 +1087,51 @@ yum list package_name # 查看指定包的信息
 yum list installed package_name # 查看包是否安装
 
 yum provides file_name # 查看指定文件属于那个包
-~~~
+```
 
 #### 用 yum 安装软件
 
-~~~shell
+```shell
 yum install package_name # 安装指定包（自动安装依赖）
 
 yum localinstall package_name.rpm # 下载rpm包后本地安装
-~~~
+```
 
 #### 用 yum 更新软件
 
-~~~shell
+```shell
 yum list updates # 列出所有可用更新
 
 yum update package_name # 更新指定包
 
 yum update # 更新所有包
-~~~
+```
 
 #### 用 yum 卸载软件
 
-~~~shell
+```shell
 yum remove package_name # 只删除软件包保留配置和数据
 
 yum erase package_name # 清除所有文件
-~~~
+```
 
 #### 处理损坏的包依赖关系
 
 损坏的包依赖关系（broke.dependency）
 
-~~~shell
+```shell
 yum clean all # 清除问题文件，然后更新
 
 yum deplist package_name # 显示包依赖
 
 yum update --skip-broken # 忽略依赖关系损坏的包，更新其他包
-~~~
+```
 
 #### yum 软件仓库
 
-~~~shell
+```shell
 yum repolist # 显示正在使用的仓库
-~~~
+```
 
 配置文件位置`/etc/yum.repos.d`
 
@@ -1153,11 +1153,11 @@ yum repolist # 显示正在使用的仓库
 
 md5sum 是一段长度为32位的十六进制串
 
-~~~shell
+```shell
 md5sum filename
     -c # 与指定校验和对比
 # 对文件计算 md5 校验和
-~~~
+```
 
 与之类似的校验和算法还有 sha1, sha128, sha512 等等;更安全的可以使用加盐散列(salted hash)
 
@@ -1169,19 +1169,19 @@ md5sum filename
 
 gpg(GNU privacy guard)是一种应用广泛的工具
 
-~~~shell
+```shell
 gpg -c filename # 对文件进行加密
 gpg filename.gpg # 读取口令并解密文件
-~~~
+```
 
 #### base64
 
 将二进制数据转换成以64为基数的形式(radix-64 representation)
 
-~~~shell
+```shell
 base64 filename > outputfile # 加密
 base64 -d file > outputfile # 解密
-~~~
+```
 
 ## 使用编辑器
 
@@ -1206,9 +1206,9 @@ base64 -d file > outputfile # 解密
 
 shell 脚本的第一行指定要使用的shell，格式为
 
-~~~shell
+```shell
 #!/bin/bash
-~~~
+```
 
 先给脚本添加执行权限，然后要.shell 能运行脚本有两个方法：
 
@@ -1219,22 +1219,22 @@ shell 脚本的第一行指定要使用的shell，格式为
 
 使用`echo` 命令输出字符串，默认可以不使用引号；如果想字符串和命令结果显示在同一行，使用`echo -n` ，字符串两侧要添加引号，并且字符串尾部要有一个空格
 
-~~~shell
+```shell
 # 例子
 echo -n "The time and date are: "
-~~~
+```
 
 `echo`使用转义符号,需要使用`echo -e`
 
-~~~shell
+```shell
 echo -e "1\t2\t3"
-~~~
+```
 
 脚本可以使用转义序列在终端生成彩色文本
 
-~~~shell
+```shell
 echo -e "\e[1;31m This is red text \e[0m"
-~~~
+```
 
 其中常用文本颜色有:重置=0，黑色=30，红色=31，绿色=32.黄色=33，蓝色=34，洋红=35，青色=36，白色=37;
 
@@ -1242,9 +1242,9 @@ echo -e "\e[1;31m This is red text \e[0m"
 
 另一个可用于终端打印的是`printf`,默认不会换行,需要使用格式替换字符(forma.substitution character)
 
-~~~shell
+```shell
 printf "hello"
-~~~
+```
 
 ### 使用变量
 
@@ -1256,9 +1256,9 @@ printf "hello"
 
 查看一个进程的环境变量,结果字段间.null 字符(\\0)分隔,可以使用`tr`命令进行替换
 
-~~~shell
+```shell
 cat /proc/$PID/environ
-~~~
+```
 
 #### 用户变量
 
@@ -1277,10 +1277,10 @@ cat /proc/$PID/environ
 
 shell会运行命令替换符中的命令，并将其输出赋给变量
 
-~~~shell
+```shell
 date +%y%m%d # 以两位数的年月日组合显示日期
 140131
-~~~
+```
 
 **注意：命令替换会创建一个.shell 来运行对应的命令，**
 
@@ -1296,7 +1296,7 @@ date +%y%m%d # 以两位数的年月日组合显示日期
 
 *内联输入重定向（inlin.input redirection）* ，使用（<<），还必须指定一个文本标记来划分输入数据的开始和结尾
 
-~~~shell
+```shell
 comman.<< marker
 # 例子
 w.<<EOF
@@ -1306,7 +1306,7 @@ w.<<EOF
 >EOF
 # 输出
 3 9 42 # wc命令会对内联输入重定向提供的数据进行行、词和字节的计数
-~~~
+```
 
 ### 管道
 
@@ -1341,35 +1341,35 @@ bas.计算器实际上是一种编程语言，允许在命令行中输入浮点�
 
 浮点运算是由内建变.scale 控制的，将这个值设置为计算结果中保留的小数位数
 
-~~~shell
+```shell
 bc -q # -q 打开时跳过欢迎信息
 scale=2 # 四位浮点数，scale 默认值是0
 3.4 / 5
 quit # 退出
-~~~
+```
 
 ##### 在脚本中使用bc
 
 可以使用命令替换运行 bc 命令，并将输出赋给一个变量
 
-~~~shell
+```shell
 variable=$(echo "options; expression" | bc)
 # options：设置变量；expression：定义数学表达式（可以使用变量）
 # 例子
 var1=$(echo "scale=4;3.44/5" | bc)
 echo The answer is $var1
-~~~
+```
 
 bc命令能识别输入重定向，最好使用内联重定向
 
-~~~shell
+```shell
 variable=$(bc << EOF
 options
 statements
 expression
 EOF
 )
-~~~
+```
 
 可以.bash 计算器中赋值给变量**在 bash 计算器中创建的变量只在 bash 计算器中有效，不能在 shell 脚本中使用**
 
@@ -1401,12 +1401,12 @@ exi.命令允许在脚本结束时指定一个退出状态码（可以使用变�
 
 if-the.语句格式：
 
-~~~shell
+```shell
 i.command
 then
     commands
 fi
-~~~
+```
 
 i.后的命令的退出状态码是0,则会运行 then 后的命令
 
@@ -1414,20 +1414,20 @@ i.后的命令的退出状态码是0,则会运行 then 后的命令
 
 ### if-then-else 语句
 
-~~~shell
+```shell
 i.command
 then
     command
 else
     command
 fi
-~~~
+```
 
 ### 嵌套 if
 
 当有多种条件时,可以使用嵌套.if-then 语句
 
-~~~shell
+```shell
 i.command
 then
     i.command
@@ -1435,11 +1435,11 @@ then
         ommand
     fi
 fi
-~~~
+```
 
 也可以使用 elif
 
-~~~shell
+```shell
 i.command
 then
     command
@@ -1449,7 +1449,7 @@ then
 else
     command
 fi
-~~~
+```
 
 ### test 命令
 
@@ -1457,21 +1457,21 @@ if-the.不能测试命令退出状态码之外的条件
 
 tes.命令则能测试不同条件,条件成立则会退出并返回状态码0;否则返回非零退出状态码
 
-~~~shell
+```shell
 i.test condition # condition 是 test 命令要测试的一系列参数和值
 then
     commands
 fi
-~~~
+```
 
 bash shell 中可以使用另一种形式,无需声明 test 命令
 
-~~~shell
+```shell
 i.[ condition ] # 方括号中是测试条件;condition 两边都有空格
 then
     commands
 fi
-~~~
+```
 
 tes.命令可以判断三类条件:
 
@@ -1548,14 +1548,14 @@ bash shell 提供了两项可在if-then语句中使用的高级特性:
 
 case 命令会采用列表格式来检查单个变量的多个值
 
-~~~shell
+```shell
 case variable in
 pattern1) command1;;
 pattern2) command2;;
 pattern3) command3;;
 *) commands;;
 esac
-~~~
+```
 
 \*) 用来善后(可以不写);pattern 支持简单的正则表达式
 
@@ -1565,23 +1565,23 @@ esac
 
 创建一个遍历一系列值得循环
 
-~~~shell
+```shell
 for var in list
 do
     commands
 done
-~~~
+```
 
 其.list 有几种不同方式来指定列表的值,并且可选项
 
 #### 直接定义 list 值
 
-~~~shell
+```shell
 for test in abc bcd cde def
 do
     echo $test
 done
-~~~
+```
 
 #### 特殊符号
 
@@ -1589,20 +1589,20 @@ done
 
 #### 从变量读取
 
-~~~shell
+```shell
 list="ab.bcd cde def" # 定义 list
 list=$list"efg" # list 添加元素
 for test in $list # 使用变量
 do
     commands
 done
-~~~
+```
 
 #### 从命令读取
 
-~~~shell
+```shell
 for test in $(cat $file) # 使用 cat 命令的输出作为 list
-~~~
+```
 
 #### 更改字段分隔符
 
@@ -1616,20 +1616,20 @@ bash shell 默认的分隔符:
 
 可以在脚本中自定义分隔符(如果要使用多个符号串联即可)
 
-~~~shell
+```shell
 IFS=$'\n':.# 将换行符,冒号,分号作为换行符
-~~~
+```
 
 #### 使用通配符读取目录
 
 可以使用 for 命令自动遍历目录中的文件
 
-~~~shell
+```shell
 for file in /home/rich/test/*
 do
     commands
 done
-~~~
+```
 
 ### C 语言风格的 for 命令
 
@@ -1639,11 +1639,11 @@ done
 
 bash 中 C 语言风格的 for 循环
 
-~~~shell
+```shell
 for (( variable assignment ; condition ; iteration process ))
 # 例子
 for (( a = 1; a < 10; a++ ))
-~~~
+```
 
 不同于 bash shell 标准的 for 命令:
 
@@ -1655,12 +1655,12 @@ for (( a = 1; a < 10; a++ ))
 
 * 语言风格的 for 命令允许使用多个变量,但只能定义一种条件
 
-~~~shell
+```shell
 for (( a=1, b=10; a <= 10; a++, b--))
 do
     commands
 done
-~~~
+```
 
 ### while 命令
 
@@ -1668,12 +1668,12 @@ while 命令允许定义一个要测试的命令,然后循环执行一组命令
 
 #### while 的基本格式
 
-~~~shell
+```shell
 while test command
 do
     som.commands
 done
-~~~
+```
 
 测试命令格式于 if-then 中的相同,while 会在测试条件不成立时停止
 
@@ -1685,12 +1685,12 @@ while 命令允许在 while 语句定义多个测试命令,但只有最后一个
 
 until 命令和 while 命令的工作方式相反,只有测试命令的退出状态码不为0,bash shell 才会执行循环中列出的命令;与 while 相似,until 也可以使用多个测试命令,最后一个测试命令的退出状态码决定循环是否结束
 
-~~~shell
+```shell
 until test commands
 do
     som.commands
 done
-~~~
+```
 
 ### 嵌套循环
 
@@ -1738,12 +1738,12 @@ continue 命令可以跳过某次循环中的剩余命令,但不会终止整个�
 
 * shell 脚本中,可以对循环的输出使用管道或进行重定向,通过在 done 命令之后添加一个处理命令实现
 
-~~~shell
+```shell
 for test in list
 do
     commands
 done > output.txt # 输出重定向到 output.txt 文件
-~~~
+```
 
 这种方法同样使用于将循环的结果管接给另一个命令
 
@@ -1755,27 +1755,27 @@ done > output.txt # 输出重定向到 output.txt 文件
 
 1. 创建一个 for 循环,对环境变量 PATH 中的目录进行迭代,注意设置分隔符
 
-    ~~~shell
+    ```shell
     IFS=:
     for folder in $PATH;do
         commands
     done
-    ~~~
+    ```
 
 2. 使用另一个 for 循环来迭代特定目录中的所有文件
 
-    ~~~shell
+    ```shell
     for file in $folder/*;do
-    ~~~
+    ```
 
 3. 检查各个文件是否具有可执行文件
 
-    ~~~shell
+    ```shell
     if [ -x $file ]
     then
         echo " $file"
     fi
-   ~~~
+   ```
 
 #### 创建多个用户账户
 
@@ -1807,15 +1807,15 @@ bash shell 提供了一些不同的方法从用户处获得数据,包括参数\�
 
 在输入参数时,参数使用空格隔开,含有空格的字符串参数要用引号;变量使用与其他变量相同
 
-~~~shell
+```shell
 ./test.sh hello 'Rich Brian'
-~~~
+```
 
 如果需要的参数大于九个,必须为变量加上花括号,比如\${10}
 
-~~~shell
+```shell
 echo The tenth parameter is ${10}
-~~~
+```
 
 #### 读取脚本名
 
@@ -1823,20 +1823,20 @@ echo The tenth parameter is ${10}
 
 使用`basename`命令可以剥离路径返回脚本名
 
-~~~shell
+```shell
 shellname=$(basename $0)
-~~~
+```
 
 #### 测试参数
 
 在使用参数前要检查其中是否存在数据
 
-~~~shell
+```shell
 if [ -n "$1"] # 检查变量1 是否为空
 then
     commands
 fi
-~~~
+```
 
 ### 特殊参数变量
 
@@ -1872,7 +1872,7 @@ shift 命令会根据参数的相对位置移动命令行参数,默认向左移�
 
     在提取每个单独参数时,.case 语句来判断某个参数是否为选项
 
-    ~~~shell
+    ```shell
     while [-n "$1" ]
     do
         case "$1" in
@@ -1883,13 +1883,13 @@ shift 命令会根据参数的相对位置移动命令行参数,默认向左移�
         esac
     shift
     done
-   ~~~
+   ```
 
 2. 分离参数和选项
 
     使用双破折号 -- 分隔参数和选项
 
-    ~~~shell
+    ```shell
     case "$1" in
     -a) commands;;
     -b) commands;;
@@ -1898,7 +1898,7 @@ shift 命令会根据参数的相对位置移动命令行参数,默认向左移�
         break;;
     *) commands;;
     esac
-   ~~~
+   ```
 
     在遇到双破折号时,使用 break 跳出 while 循环
 
@@ -1906,14 +1906,14 @@ shift 命令会根据参数的相对位置移动命令行参数,默认向左移�
 
     有些选项会带上一个额外的参数值
 
-    ~~~shell
+    ```shell
     case "$1" in
     -a) commands;;
     -b) commands with "$2"
         shift;;
     *) commands;;
     esac
-   ~~~
+   ```
 
     需要处理的参数.\$1 ,额外的参数位于 \$2 ,因为这个选项占用了两个参数位,所以还需要使用 shift 命令多移动一个位置
 
@@ -1921,16 +1921,16 @@ shift 命令会根据参数的相对位置移动命令行参数,默认向左移�
 
 1. 命令的格式:
 
-    ~~~shell
+    ```shell
     getopt optstring parameters
-    ~~~
+    ```
 
     optstring定义了命令行有效的选项字母,还定义了哪些选项字母需要参数值(在需要参数值得选项字母后加一个冒号)
 
-    ~~~shell
+    ```shell
     # 例子
     getopt ab:cd -a -b test1 -cd test2 test3
-    ~~~
+    ```
 
     getopt 会自动将合并得选项拆开,并添加双破折号来分隔其他参数
 
@@ -1942,9 +1942,9 @@ shift 命令会根据参数的相对位置移动命令行参数,默认向左移�
 
     使用 getopt 格式化后的命令行参数替换原始的命令行参数
 
-    ~~~shell
+    ```shell
     set -- $(getopt a b:cd "$@") # set的 -- 选项会将后面的参数按位置放入脚本变量
-    ~~~
+    ```
 
     getopt 不能处理带空格和引号的参数值
 
@@ -1952,13 +1952,13 @@ shift 命令会根据参数的相对位置移动命令行参数,默认向左移�
 
 每次调用 getopt 命令会处理命令行上检测到的一个参数,处理完所有的参数后,会退出并返回一个大于0的状态码, getopts 格式如下:
 
-~~~shell
+```shell
 getopt optstring variable # variable 会保存当前检测到的选项
-~~~
+```
 
 getopts 会用到两个环境变量,选项的参数会保存在 OPTARG 环境变量中,OPTIND 保存了getopts 正在处理的参数的位置
 
-~~~shell
+```shell
 echo
 while getopts :ab:c opt
 do
@@ -1969,7 +1969,7 @@ do
         *) commands;;
     esac
 done
-~~~
+```
 
 getopts 命令解析命令行选项时会移除开头的单破折号,所以在 case 定义中不用但破折号
 
@@ -1991,23 +1991,23 @@ Linu.中有一些常用选项
 
 #### 基本的读取
 
-~~~shell
+```shell
 read variable# 读取命令,read 会将数据放进一个变量(如不指定会将数据放入特殊的环境便令REPLY中)
     -p # 直接在 read 指定提示符
-~~~
+```
 
 #### 超时
 
-~~~shell
+```shell
     -t # 指定 read 命令等待输入的秒数(计时器过期,read 命令会返回非零状态码)
     -n # 指定 read 命令读取一定数量的字符后退出
-~~~
+```
 
 #### 隐藏方式读取
 
-~~~shell
+```shell
     -s # 避免输入数据出现在显示器上(实际上会显示,只是文本颜色和背景色一样)
-~~~
+```
 
 #### 从文件中读取
 
@@ -2015,12 +2015,12 @@ read variable# 读取命令,read 会将数据放进一个变量(如不指定会�
 
 常见使用方式如下:
 
-~~~shell
+```shell
 cat test | while read line
 do
     commands with $line
 done
-~~~
+```
 
 ## 呈现数据
 
@@ -2065,28 +2065,28 @@ bash shell 保留了前三个(0/1/2)
 
     将文件描述符的值放在重定向符号前,正常输出依旧显示在终端显示器上
 
-    ~~~shell
+    ```shell
     ls -la badfile 2> test # 将错误输出重定向到 test 文件
     # badfile 文件不存在,会产生错误输出
-    ~~~
+    ```
 
 2. 分别重定向错误和正常输出
 
     分别重定向错误输出和正常输出,使用两个重定向符号,并在符号前加上对应的文件描述符
 
-    ~~~shell
+    ```shell
     ls -la test badtest 2> testerr 1>testok # 将错误和正常输出分开重定向
     # test 文件存在,会产生正常输出;badtest 文件不存在,会产生错误输出
-    ~~~
+    ```
 
 3. 同时重定向
 
     使用 &> 符号时,可以同时将错误和正常输出重定向到同一个文件(bash shell 赋予了错误信息更高的优先级,在同时输出时,将错误信息放在前面)
 
-    ~~~shell
+    ```shell
     ls -la test badtest &> testall # 将所有输出重定向至 testall 文件
     # 错误信息排在正常信息之前
-    ~~~
+    ```
 
 ### 在脚本中重定向输出
 
@@ -2099,9 +2099,9 @@ bash shell 保留了前三个(0/1/2)
 
 将输出信息重定向到文件描述符,并在描述符前加.& 符号即可(在不使用重定向时,默认是STDOUT)
 
-~~~shell
+```shell
 echo "This is an error message." >&2
-~~~
+```
 
 #### 永久重定向
 
@@ -2109,17 +2109,17 @@ echo "This is an error message." >&2
 
 exec 会启动一个新的 shell 将 STDOUT 文件描述重定向到文件
 
-~~~shell
+```shell
 exec 1>testout # 在脚本执行期间 STDOUT 都会输出到 testout 文件
-~~~
+```
 
 #### 在脚本中重定向输入
 
 exec 命令也可以将 STDIN 重定向到文件
 
-~~~shell
+```shell
 exec 0< testfile # 使脚本从 testfile 获得输入,而不是 STDIN
-~~~
+```
 
 ### 创建自己的重定向
 
@@ -2129,25 +2129,25 @@ exec 0< testfile # 使脚本从 testfile 获得输入,而不是 STDIN
 
 使用 exec 命令给输出分配文件描述符
 
-~~~shell
+```shell
 exec 3>tset3out
 echo "This should be stored in the file" >&3 # 这个语句会被重定向到文件中
-~~~
+```
 
 #### 重定向文件描述符
 
-~~~shell
+```shell
 exec 3>&1 # 使 3 指向 STDOUT
 exec 1>test4out # 将 STDOUT 重定向到文件
 echo "This should store in the output file" # 这是一条标准输出 STDOUT
 exec 1>&3 # 将 1 重新指向 STDOUT
-~~~
+```
 
 #### 创建输入文件描述符
 
 |STDIN 指向另一个文件描述符
 
-~~~shll
+```shll
 exec 6<&0 # 使 6 指向 STDIN
 exec 0< testfile # 从文件获取 STDIN
 while read line
@@ -2155,16 +2155,16 @@ do
     echo "$line"
 done
 exec 0<&6 # 使 0 重新指向 STDIN
-~~~
+```
 
 #### 创建读写文件描述符
 
 使用单个文件描述符同时作为输入和输出
 
-~~~shell
+```shell
 exec 3<> testfile # 将 3 同时作为输入和输出描述符
 read line <&3
-~~~
+```
 
 由于对同一个文件进行数据读写,shell 会维护一个内部指针,指明在文件中的当前位置,任何读写都会从文件指针上次的位置开始
 
@@ -2174,19 +2174,19 @@ read line <&3
 
 手动关闭可以使用
 
-~~~shell
+```shell
 exec 3>&- # 关闭文件描述符3
-~~~
+```
 
 ### 列出打开的文件描述符
 
 使用 lsof 命令会列出整个 Linux 系统打开的所有文件描述符
 
-~~~shell
+```shell
 lsof # 显示所有文件信息
     -p # 指定PID
     -d # 指定文件描述符编号
-~~~
+```
 
 ### 阻止命令输出
 
@@ -2202,10 +2202,10 @@ lsof # 显示所有文件信息
 
 指定一个文件名模板,后缀为6个X即可,在本地目录中创建临时文件
 
-~~~shell
+```shell
 mktemp test.XXXXXX
     -u # 仅生成文件名,不实际创建
-~~~
+```
 
 #### 在 /tmp 目录创建临时文件
 
@@ -2221,16 +2221,16 @@ mktemp test.XXXXXX
 
 使用 tee 命令可以将输出同时发送到显示器和日志文件
 
-~~~shell
+```shell
 tee filename # 默认覆盖输出
     -a # 追加输出
-~~~
+```
 
 #### 实例演示
 
 读取 .csv 格式文件,输出 SQL INSERT 语句文件
 
-~~~shell
+```shell
 ##!/bin/bash
 # read file and create INSERT statements for MySQL
 
@@ -2242,7 +2242,7 @@ do
     INSER.INTO members (lname,fname,address,city,state,zip) VALUES ('$lname','$fname','$address','$city','$state','$zip');
 EOF
 done < $(1)
-~~~
+```
 
 done < $(1)
 
@@ -2292,33 +2292,33 @@ bash shell 允许使用键盘上的组合键生成两种基本的 Linux 信号
 
 `trap`命令的格式是:
 
-~~~shell
+```shell
 trap commands signals # signals 代表要捕获的信号,commands 是在捕获信号时脚本的行为
-~~~
+```
 
 #### 捕获脚本退出
 
 要捕.shell 脚本的退出,只要在`trap`命令后面加上 EXIT 信号即可
 
-~~~shell
+```shell
 trap "echo Goodbye..." EXIT # 捕获 EXIT 信号
-~~~
+```
 
 #### 修改或移除捕获
 
 要在脚本中的不同位置进行不同的捕获处理,只要使用新的`trap`命令
 
-~~~shell
+```shell
 trap "echo hello" SIGINT
 ...
 trap "echo changed" SIGINT
-~~~
+```
 
 也可以删除设置好的捕获,在`trap`命令和取消捕获的信号之间加上破折号即可(单破折号和双破折号都可以)
 
-~~~shell
+```shell
 trap -- SIGINT
-~~~
+```
 
 ### 以后台模式运行脚本
 
@@ -2328,9 +2328,9 @@ trap -- SIGINT
 
 要以后台模式运.shell 脚本,在命令结尾处添加 & 符号即可
 
-~~~shell
+```shell
 ./test.sh &
-~~~
+```
 
 在运行时,终端会输出一条作业信息,方括号中的是作业号,后面的是进程ID(PID)
 
@@ -2350,9 +2350,9 @@ trap -- SIGINT
 
 格式如下:
 
-~~~shell
+```shell
 nohup ./test.sh &
-~~~
+```
 
 由于 nohup 命令会解除终端与进程的关联,进程也就不会同 STDOUT 和 STDERR 联系;为了保存该命令产生的输出, nohup 命令会自动将 STDOUT 和 STDERR 的消息重定向到一个名为 nohup.out的文件中
 
@@ -2376,9 +2376,9 @@ job 输出中带加号的作业会被当作默认作业,在使用控制命令操
 
 要以后台模式重启一个作业,可以使用 bg 命令加上作业号
 
-~~~shell
+```shell
 bg 作业号 # 不加作业号就是以默认作业为对象
-~~~
+```
 
 要以前台模式重启作业,可以.fg 命令,使用方法与 bg 相同
 
@@ -2392,9 +2392,9 @@ bg 作业号 # 不加作业号就是以默认作业为对象
 
 nice 命令可以设置命令启动时的调度优先级
 
-~~~shell
+```shell
 nice -n 10 ./test.sh &
-~~~
+```
 
 nice 命令阻止普通系统用户提高命令的优先级
 
@@ -2402,11 +2402,11 @@ nice 命令阻止普通系统用户提高命令的优先级
 
 改变系统上已运行的命令的优先级,可以使用 renice 命令
 
-~~~shell
+```shell
 renice -n 10 -p 5055
     -n # 指定优先级
     -p # 指定PID
-~~~
+```
 
 renice 命令有些限制
 
@@ -2424,10 +2424,10 @@ at.守护进程会检查系统上的一个特殊目录(通常位于/var/spool/at
 
 1. at 命令的格式
 
-    ~~~shell
+    ```shell
     at [-f filename] time
         -f # 指定要执行的命令,不使用时会从 STDIN 接收输入
-    ~~~
+    ```
 
     time 参数指定了 Linux 系统何时运行改作业
 
@@ -2463,18 +2463,18 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 
 1. cron 时间表
 
-    ~~~shell
+    ```shell
     # 格式如下
     min hour dayofmonth month dayofweek command
-    ~~~
+    ```
 
 2. 构建 cron 时间表
 
-    ~~~shell
+    ```shell
     crontab
         -l # 查看已有的内容
         -e # 添加条目
-   ~~~
+   ```
 
 3. 浏览 cron 目录
 
@@ -2490,11 +2490,11 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 
     anacrod 时间表
 
-    ~~~shell
+    ```shell
     # 格式如下
     period delay identifier command
     运行间隔(以天为单位.系统启动后等待时间开始运行错过的脚本 标识日志消息和错误邮件中的作业 作业
-    ~~~
+    ```
 
 #### 使用新 shell 启动脚本
 
@@ -2508,21 +2508,21 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 
 第一种格式采用关键.function
 
-~~~shell
+```shell
 function name {
     commands
 }
 |name 定义了函数的名称
-~~~
+```
 
 第二种类似其他语言的方式
 
-~~~shell
+```shell
 name() {
 commands
 }
 |函数名后的空括号表示正在定义的是一个函数
-~~~
+```
 
 #### 使用函数
 
@@ -2534,9 +2534,9 @@ commands
 
 可以使用 export 导出函数,将函数的作用域扩展到子进程
 
-~~~shell
+```shell
 export -f fname
-~~~
+```
 
 ### 返回值
 
@@ -2548,7 +2548,7 @@ export -f fname
 
 bash shell 使用 return 命令来推出函数并返回特定的退出状态码
 
-~~~shell
+```shell
 function name {
     commands
     retur.N
@@ -2558,20 +2558,20 @@ commands
 return N
 }
 |N 为指定的返回值(必须是0~255)
-~~~
+```
 
 #### 使用函数输出
 
 可以将函数的返回值存入变量使用
 
-~~~shell
+```shell
 name() {
 commands
 return N
 }
 result=$(name )| result=`name`
 # 将函数 name 的返回值保存在变量 result 中
-~~~
+```
 
 ### 在函数中使用变量
 
@@ -2579,22 +2579,22 @@ result=$(name )| result=`name`
 
 函数可以使用标准的参数环境变量来表示命令行上传给函数的参数,使用格式:
 
-~~~shell
+```shell
 funname() {
 sum=$(($1+ $2))
 echo $sum
 }
 funname value1 value2 # 可以使用变量 $value
-~~~
+```
 
 需要注意的是**函数中的位置变量和脚本中的不同,函数要使用脚本中的需要手动传递**
 
-~~~shell
+```shell
 value1=$1
 value2=$2
 funname value1 value2
 funname $1 $2
-~~~
+```
 
 #### 在函数中处理变量
 
@@ -2613,10 +2613,10 @@ funname $1 $2
 
     函数内部使用的任何变量都可以被声明成局部变量;使用 local 关键字进行声明
 
-    ~~~shell
+    ```shell
     local temp 或
     local temp=value
-    ~~~
+    ```
 
     local 关键字限制了变量的作用域为该函数中;如果函数外有同名函数, shell 会保证两个变量的值是分离的
 
@@ -2626,54 +2626,54 @@ funname $1 $2
 
 使用以下形式
 
-~~~shell
+```shell
 funname ${array[*]}
-~~~
+```
 
 在函数内部重建数组变量,然后使用
 
-~~~shell
+```shell
 newarray=($(echo $@))
-~~~
+```
 
 #### 从函数返回数组
 
 同理,输出使用以下形式
 
-~~~shell
+```shell
 echo ${newarray[*]}
-~~~
+```
 
 从脚本接收函数输出后,重建数组
 
-~~~shell
+```shell
 result=($(funname ${array[*]}))
-~~~
+```
 
 ### 关联数组
 
 首先使用声明语句将一个变量定义为关联数组
 
-~~~shell
+```shell
 declare -A ass_array
-~~~
+```
 
 赋值
 
-~~~shell
+```shell
 ass_array=([index1]=varl1 [index2]=val2)
 |或使用独立的"索引-值"进行赋值
 ass_array[index1]=val1
 aass_array[index2]=val2
-~~~
+```
 
 列出数组索引
 
-~~~shell
+```shell
 echo ${!ass_array[*]}
 # 或使用 @
 echo ${!ass_array[@]}
-~~~
+```
 
 ### 函数递归
 
@@ -2681,7 +2681,7 @@ echo ${!ass_array[@]}
 
 比如计算阶乘
 
-~~~shell
+```shell
 function factorial{
     if [$1 -eq 1]
     then
@@ -2692,7 +2692,7 @@ function factorial{
         cho $[ $result * $1 ]
     fi
 }
-~~~
+```
 
 ### 创建库
 
@@ -2700,10 +2700,10 @@ bash shell 允许创建库函数文件,然后在多个脚本中引用该库文�
 
 写好库文件后,在要引用的文件内使用以下方法
 
-~~~shell
+```shell
 source /script_lib
 . /script_lib
-~~~
+```
 
 sourc.命令会在当前 shell 上下文中执行命令, source 有个别名,称为*点操作符*(dot operator)
 
@@ -2713,9 +2713,9 @@ sourc.命令会在当前 shell 上下文中执行命令, source 有个别名,称
 
 一种是采用单行方式定义函数
 
-~~~shell
+```shell
 function funname { command; command; }
-~~~
+```
 
 第二种是用多行方式
 
@@ -2741,7 +2741,7 @@ shell 脚本菜单的核心是 case 命令
 
 例如
 
-~~~shell
+```shell
 clear
 echo
 echo -e "\t\t\tSys Admain Menu\n"
@@ -2750,13 +2750,13 @@ echo -e "\t2.Display logged on users"
 echo -e "\t3.Display memory useage"
 echo -3 "\t0.Exit menu\n\n"
 echo -en "\t\tEnter option: "
-~~~
+```
 
 然后使用 read 命令获取用户输入
 
-~~~shell
+```shell
 read option
-~~~
+```
 
 #### 创建菜单函数
 
@@ -2766,7 +2766,7 @@ read option
 
 使用 case 命令处理选项
 
-~~~shell
+```shell
 case $option in
 0)bread ;;
 1)diskspac.;;
@@ -2774,7 +2774,7 @@ case $option in
 3)memusag.;;
 *)clear;echo "Sorry, wrong selection" ;;
 esac
-~~~
+```
 
 #### 整合 shell 脚本菜单
 
@@ -2784,12 +2784,12 @@ esac
 
  select 命令只需要一条命令就可以创建出菜单,然后获取输入的答案并自动处理
 
-~~~shell
+```shell
 select variable in list
 do
     commands
 done
-~~~
+```
 
 select 会将每个列表项显示成一个代编号的选项,并自动生成一个菜单
 
@@ -2807,11 +2807,11 @@ dialog 命令使用命令行参数来决定生成那种窗口部件(widget)
 
 在命令行上指定某个特定的部件
 
-~~~shell
+```shell
 dialog --widget parameters
 # widget 是部件名
 # parameters 定义窗口大小以及部件需要的文本
-~~~
+```
 
 每.dialog 部件都提供了两种形式的输出
 
@@ -2822,47 +2822,47 @@ dialog --widget parameters
 
     msgbox 会在窗口中显示一条简单的消息,直到用户单击 OK 按钮后消失
 
-    ~~~shell
+    ```shell
     dialog --msgbox text height width
-    ~~~
+    ```
 
     text 是在窗口中显示的字符串, dialog 会根据 height 和 width 参数创建的窗口大小自动换行,使用 -\-title 参数可以在窗口顶部显示一个标题
 
-    ~~~shell
+    ```shell
     dialog --title Testing --msgbox "this is a test window" 30 50
-    ~~~
+    ```
 
 2. yesno 部件
 
     yesno 允许用户选择 yes 或 no,退出状态码为 yes-0,no-1
 
-    ~~~shell
+    ```shell
     dialog --title "Please answer" --yesno "Is this thing on?" 10 20
-    ~~~
+    ```
 
 3. inputbox 部件
 
     inputbox 提供了一个简单的文本框区域来输入文本字符串,dialog 命令会将文本字符串的值发给 STDERR, inputbox 提供了两个按钮:OK(0) 和Cancel(1)
 
-    ~~~shell
+    ```shell
     dialog --inputbox "Enter your age:" 10 20 2>age.txt
-    ~~~
+    ```
 
 4. textbox 部件
 
     textbox 部件会生成一个滚动窗口来显示由参数指定的文件中的文本
 
-    ~~~shell
+    ```shell
     dialog --textbox /etc/passwd 15 45
-    ~~~
+    ```
 
 5. menu 部件
 
     menu 允许创建一个菜单
 
-    ~~~shell
+    ```shell
     dialog --menu "Sys Admin Menu" 20 30 10 1 "some" 2 "some" 3 "some" 2> test.txt
-    ~~~
+    ```
 
     第一个参数定义了菜单的标题,之后的两个是窗口高和宽,第四个则定义了在窗口中一次显示的菜单项总数;在这些参数后的是菜单项对,菜单标号和文本
 
@@ -2870,9 +2870,9 @@ dialog --widget parameters
 
     fselect 提供了一个浏览选择文件的窗口
 
-    ~~~shell
+    ```shell
     dialog --title "Select a file" --fselect $HOME/ 10 50 2>file.txt
-    ~~~
+    ```
 
     fselect 后的第一个参数是窗口使用的起始目录位置
 
@@ -2893,18 +2893,18 @@ set 被称为*流编辑器(stream editor)*,sed 编辑器处理流程:
 
 set 格式如下:
 
-~~~shell
+```shell
 set options script file
     -e # 使用多条命令
     -f # 使用 sed 脚本文件
     -p # 不产生命令输出,使用print命令完成输出
-~~~
+```
 
 命令,替换命令
 
-~~~shell
+```shell
 echo "This is a test" | sed 's/test/big test'
-~~~
+```
 
 1. 替换标记
 
@@ -2917,21 +2917,21 @@ echo "This is a test" | sed 's/test/big test'
 
     set 允许使用其他字符作为替换命令中的字符串分隔符
 
-    ~~~shell
+    ```shell
     set 's!/bin/bash!/bin/csh!' /etc/passwd # 使用!作为分隔符
-    ~~~
+    ```
 
 使用多条命令
 
-~~~shell
+```shell
 set -e 's/brown/green/; s/dog/cat/' filename.txt
-~~~
+```
 
 从文件中读取命令
 
-~~~shell
+```shell
 set -f script.sed filename.txt
-~~~
+```
 
 ##### 使用地址
 
@@ -2968,22 +2968,22 @@ gawk 程序是 Unix 中的原始 awk 程序的 GNU 版本,它是一种编程语�
 
 1. gawk 命令格式
 
-    ~~~shell
+    ```shell
     gawk options program file
         -F # 指定分隔符
         -f # 读取文件
         -v var=value # 定义变量和值
         -mf # 处理的最大字段数
         -mr # 处理的最大行数
-    ~~~
+    ```
 
 2. 从命令行读取程序脚本
 
     gawk 程序脚本用一对花括号来定义
 
-    ~~~shell
+    ```shell
     gawk '{print "Hello world!"}' file
-    ~~~
+    ```
 
 3. 使用数据字段变量
 
@@ -3008,17 +3008,28 @@ gawk 程序是 Unix 中的原始 awk 程序的 GNU 版本,它是一种编程语�
 
     使用 END 关键字
 
+8. 将外部变量值传递给awk
+
+    使用选项 -v 可以将外部值传递给awk
+
+    ```shell
+    VAR=1000
+    echo | awk -v VARIABLE=$$VAR '{ print VARIABLE }'
+    # 或使用一种更灵活的方法
+    echo | awk '{ print v1, v2 }' v1=$var1 v2=$var2
+    ```
+
 ### tr 命令
 
 tr 可以将一组字符转换成另一组;tr 只能从 stdin 接收输入
 
-~~~shell
+```shell
 tr [option] set1 set2
 # tr 会将第一组的字符换成第二组的,并每个字符对应,可以使用字符范围(a-z)
     -d # 删除指定的字符集合
     -c # 使用 set1 的补集,将不在 set1 中的字符替换为 set2 中的
     -s # 压缩字符串
-~~~
+```
 
 ## 正则表达式
 
@@ -3057,27 +3068,27 @@ tr [option] set1 set2
 
 使用 -x 选项,启用 shell 脚本的跟踪调试功能,调试输出会发送到 stderr,可以使用重定向
 
-~~~shell
+```shell
 bash -x script.sh
-~~~
+```
 
 使用 set -x 和 set +x 包围要调试的部分
 
-~~~shell
+```shell
 commands
 set -x
 commands
 set +x
 ...
-~~~
+```
 
 ## tips
 
 ### 获取字符串长度
 
-~~~shell
+```shell
 length=${#var}
-~~~
+```
 
 ### 终端提示符变量
 
@@ -3087,31 +3098,31 @@ PS1
 
 如果 parameter 有不为空的值,则使用 expression 的值
 
-~~~shell
+```shell
 ${parameter:+expression}
-~~~
+```
 
 ### 重定向拷贝
 
 使用 tee 命令,tee 命令从 stdin 接收输入,然后写入文件的同时从 stdout 输出,tee 命令写入文件默认是覆盖方式,使用 -a 选项,用于追加内容
 
-~~~shell
+```shell
 pwd | tee filename
-~~~
+```
 
 ### shebang 的妙用
 
 |shebang 改成
 
-~~~shell
+```shell
 #!/bin/bash -xv # 开启脚本调试
-~~~
+```
 
 ### Fork 炸弹
 
-~~~shell
+```shell
 :(){ :|:& };:
-~~~
+```
 
 这个函数会一直生成新的进程,最终形成拒绝服务攻击
 
@@ -3119,18 +3130,129 @@ pwd | tee filename
 
 ### 通过引用子 shell 的方式保留空格和换行符
 
-~~~shell
+```shell
 out="$(cat text.txt)"
 # 使用双引号可以保留结果中的换行符
-~~~
+```
 
 ### 更快的 while 循环
 
 在多数系统中, true 是作为 /bin 中的一个二进制文件实现的,每次执行 while true 时, shell 就会生成一个进程;使用 shell 的内建命令 : ,可以避免
 
-~~~shell
+```shell
 while :;do
 echo
 done
 # : 的退出状态总是 0
-~~~
+```
+
+### % 和 # 操作符
+
+% 删除位于右侧通配符匹配的字符,非贪婪操作;%% 贪婪操作
+
+```shell
+file_jpg="sample.jpg"
+name=${file_jpg%.*}
+# 输出 name
+sample
+```
+
+\# 删除位于左侧通配符匹配的字符,非贪婪操作;## 贪婪操作
+
+```shell
+file_jpg="sample.jpg"
+extension=${file_jpg#*.}
+# 输出extension
+jpg
+```
+
+### 按列合并文件
+
+使用 paste 命令可以实现安列合并文件内容
+
+```shell
+paste file1 file2 file3 ...
+    -d # 指定分隔符(默认是制表符)
+```
+
+### 下载命令
+
+使用 wget 命令可以从互联网下载文件
+
+```shell
+wget URL
+    -O # 指定输出文件名
+    -o # 指定日志信息输出文件(默认 STDOUT)
+    -t # 中断尝试次数(设为0,表示不断重试)
+    -c # 断点续传
+    --limit-rate # 下载限速,可使用 k 和 m
+```
+
+### 文本摘要
+
+使用 ots 工具可以生成文本摘要,ots 从 stdin 读取输入,输出到 stdout
+
+```shell
+ots File.txt |less
+```
+
+### 创建压缩文件系统
+
+squashfs 程序能创建一种超高压缩率的只读文件系统,可以使用环回方式挂载访问
+
+```shell
+mksquashfs SOURCES compressedfs.squashfs
+    -e # 排除指定文件
+# 利用环回挂载 squashfs 文件
+mount -o loop compressedfs.squashfs /mnt/squash
+```
+
+### 连接无线网络
+
+使用 iwconfig 和 iwlist 工具来配置无线网络参数
+
+```shell
+iwlist scan # 扫描可用无线网络
+```
+
+### 在本地挂载点挂载远程驱动器
+
+使用 sshfs 可以挂载远程文件系统
+
+```shell
+sshf -o allow_other user@remotehost:/home/path /mnt/mountpoint # 挂载远程文件
+umount /mnt/mountpoint # 卸载
+```
+
+### 创建套接字
+
+netcat 或 nc 命令都可以创建用户 TCP/IP 网络上传输数据的套接字
+
+```shell
+nc -l 1234 # 在端口1234上创建了一个侦听套接字
+
+nc HOST 1234 # 连接到套接字
+```
+
+### 创建虚拟私有网络(Virtual Private Network,VPN)
+
+使用 OpenVPN 可以部署VPN的服务器和客户端
+
+### 在 Linux 中使用虚拟机
+
+可以使用四种工具,其中三种开源
+
+开源:
+
+* KVM
+* XEN
+* VirtualBox
+
+商业:
+
+* VMware
+
+### 使用容器
+
+* LXC
+* docker

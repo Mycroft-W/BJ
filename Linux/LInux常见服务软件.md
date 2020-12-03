@@ -14,7 +14,7 @@
 
 Server 配置文件: /etc/ssh/sshd_config
 
-Clent 配置文件: /etc/ssh/ssh_config
+Client 配置文件: /etc/ssh/ssh_config
 
 ## DHCP 服务
 
@@ -26,8 +26,9 @@ Clent 配置文件: /etc/ssh/ssh_config
 
 **端口**:
 
-    UDP 67 (接收端口)
-    UDP 68 (发送端口)
+   UDP 67 (接收端口)
+
+   UDP 68 (发送端口)
 
 **配置文件**:
 
@@ -43,8 +44,9 @@ Clent 配置文件: /etc/ssh/ssh_config
 
 **端口**:
 
-    UDP 53 (数据通信,域名解析)
-    TCP 53 (数据同步,主从同步)
+   UDP 53 (数据通信,域名解析)
+
+   TCP 53 (数据同步,主从同步)
 
 **配置文件**:
 
@@ -53,3 +55,43 @@ Clent 配置文件: /etc/ssh/ssh_config
 区域配置文件: /etc/named.rfc1912.zones
 
 数据配置文件: /var/named/xxxx(与区域配置中相同)
+
+## FTP 服务
+
+**名称**: VSFTP 互联网文件传输
+
+**软件**: vsftpd
+
+**服务**: vsftpd
+
+**端口**: TCP 20 21
+
+**配置文件**:
+
+   主配置文件: /etc/vsftpd/vsftpd.conf
+
+## SAMBA 服务
+
+**名称**: samba 局域网文件传输
+
+**软件**: samba
+
+**服务**: smb
+
+**端口**: TCP 139 445
+
+**配置文件**:
+
+主配置文件: /etc/samba/smb.conf
+
+## TCP Wrappers
+
+**名称**: TCP Wrappers TCP 简单防火墙
+
+**软件**: tcp_wrappers
+
+**配置文件**:
+
+   黑名单: /etc/hosts.deny
+
+   白名单: /etc/hosts.allow
