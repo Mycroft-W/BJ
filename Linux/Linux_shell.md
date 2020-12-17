@@ -3256,3 +3256,7 @@ nc HOST 1234 # 连接到套接字
 
 * LXC
 * docker
+
+### 同时解压多个tarball
+
+ls . |xargs -n 1 tar -xvf

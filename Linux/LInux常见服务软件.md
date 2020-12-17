@@ -95,3 +95,27 @@ Client 配置文件: /etc/ssh/ssh_config
    黑名单: /etc/hosts.deny
 
    白名单: /etc/hosts.allow
+
+## NFS 服务
+
+**名称**: NFS 网络文件系统
+
+**软件**: nfs
+
+**端口**: 随机端口
+
+**配置文件**: /etc/exports
+
+## 邮件服务
+
+**名称** mail Server
+
+**软件**: postfix Dovecot
+
+**端口**: SMTP-25-465; POP3-110-995; IMAP4-143-993
+
+**服务**: postfix
+
+**配置文件**:
+
+**主配置文件**: /etc/postfix/main.cf
