@@ -33,7 +33,7 @@ Apache 共有3中稳定的 MPM 模式(MPM: 多进程处理模块): prefork, work
 
 查看方式:
 
-```shell
+```bash
 httpd -V |grep -i "server mpm"
 ```
 
@@ -153,14 +153,14 @@ Apache 提供了一个对目录进行保护的认证方法
 
    使用 httpd 附带的命令 htpasswd 来创建文件和用户(使用路径调用命令)
 
-   ```shell
+   ```bash
    htpasswd -c /usr/local/apache2/htdocs/typecho/admin/apache.passwd test1       # -c 建立密码文件
    htpasswd -m /usr/local/apache2/htdocs/typecho/admin/apache.passwd test2       # -m 添加用户
    ```
 
 4. 重启 apache 服务
 
-   ```shell
+   ```bash
    /usr/local/apache2/bin/apachectl -t               # 检查配置文件
    /usr/local/apache2/bin/apachectl stop
    /usr/local/apache2/bin/apachectl start
@@ -248,13 +248,13 @@ Apache 提供了一个对目录进行保护的认证方法
 
    检查 Apache 是否支持 SSL,存放位置 /usr/local/apache2/modules;检查是否启用
 
-   ```shell
+   ```bash
    apachectl -M
    ```
 
 2. CA 证书申请
 
-   ```shell
+   ```bash
    openssl genrsa -out ca.key 1024                           # 生成CA私钥
    openssl req -new -key ca.key -out kernel.csr              # 生成待签证书
    openssl x509 -req -days 365 -sha256 -in kernel.csr -signkey ca.key -out kernel.crt        # 对证书进行签名
@@ -397,7 +397,7 @@ Apache 自带了一个日志切割工具
 
 2. 重启服务并验证
 
-   ```shell
+   ```bash
    curl -x127.0.0.1:80 'http://www.test.com/image/a.jpg' -I
    ```
 
