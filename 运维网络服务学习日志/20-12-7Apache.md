@@ -83,13 +83,14 @@ Include etc/extra/httpd-vhosts.conf             # 子配置文件
 DocumentRoot "/usr/local/apache2/htdocs"        # 网页文件存放目录(默认)
 <Directory "/usr/local/apache2/htdocs">         # 定义指定目录的权限
     Option Indexes FollowSymLinks               # 设置权限
-      # 可使用关键词
+      # 可使用关键词有以下几种
       # None 没有任何额外权限
       # ALL 所有权限(除 MultiViews 外)
       # Indexes 浏览权限(没有默认网页文件时,显示目录)
       # FollowSymLinks 允7许软连接到其他目录
       # MultiViews 允许文件名泛匹配(需要手动开启 negotiation 模块)
     AllowOverride None                          # 定义是否允许目录下 .htaccess 文件中的权限生效
+      # 关键词有以下几种
       # None 不生效
       # All 所有都生效
       # AuthConfig 只有网页认证的权限生效
@@ -417,7 +418,7 @@ Apache 自带了一个日志切割工具
 
 ## 实验总结
 
-**问题**: 无法通过域名访问
+**问题**: 无法通过域名访问，能通过IP访问
 
 **原因**: 没有进行域名解析
 
