@@ -2,7 +2,7 @@
 
 ## /dev/full
 
-是一个始终充满的设备,在写入时总是返回”No space left on device“
+是一个始终充满的设备,在写入时总是返回"No space left on device"
 
 ## /dev/random
 
@@ -14,7 +14,7 @@
 
 ## /dev/null
 
-丢弃一切重定向到此设备的数据,被称为位桶（bit bucket）或黑洞（black hole）
+丢弃一切重定向到此设备的数据,被称为位桶(bit bucket)或黑洞(black hole)
 
 ```bash
 # 例子
@@ -23,7 +23,7 @@ lspci > /dev/null # 将lspci的结果丢弃,不会返回任何结果
 
 ## /dev/zero
 
-不断产生 null （空字符,二进制0的数据流）,通常用于清除文件内容或者初始化存储设备
+不断产生 null (空字符,二进制0的数据流),通常用于清除文件内容或者初始化存储设备
 
 ```bash
 # 例子
