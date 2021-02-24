@@ -311,7 +311,7 @@ class Human(metaclass=abc.ABCMeta):
 
 * 抽象类可以包含一个抽象方法,也可以包含具体方法和属性
 * 抽象类不允许实例化,必须被继承才可使用,子类必须实现所有继承的抽象方法
-* 子类如果没有实现所有击沉的抽象方法,则子类也不能实例化
+* 子类如果没有实现所有继承的抽象方法,则子类也不能实例化
 
 ### 自定义类
 
@@ -324,12 +324,12 @@ class Human(metaclass=abc.ABCMeta):
 * 借助于type实现
 * 利用元类MetaClass
 
-``` python
+```python
 # 自己定义一个类
 class A():
     pass
-def say(self):
-    print("Sayihng......")
+    def say(self):
+        print("Sayihng......")
 
 A.say = say
 a = A()
@@ -339,8 +339,8 @@ a.say()
 from types import MethodType
 class A():
     pass
-def say(self):
-    print("Saying......")
+    def say(self):
+        print("Saying......")
 a = A()
 a.say = MethodType(say,A)
 a.say()
@@ -362,5 +362,4 @@ class TulingMetaClass(type):
 class Teacher(object,metaclass=TulingMetaClass):
     pass
 t=Teacher()
-
 ```
