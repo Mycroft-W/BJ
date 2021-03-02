@@ -45,7 +45,7 @@ Linux内核采用虚拟文件系统（Virtua.File System,VFS）作为和每个�
    * 用于管理进程的工具
 2. shell
 
-    GNU/Linu.shell是一种特殊的交互式工具。它为用户提供了启动程序,管理文件系统中的文 件以及运行在Linux系统上的进程的途径。
+    GNU/Linuxshell是一种特殊的交互式工具。它为用户提供了启动程序,管理文件系统中的文 件以及运行在Linux系统上的进程的途径。
 
 ### Linux桌面环境
 
@@ -326,9 +326,9 @@ tar -xvf test.tar # 提取 test.tar 内容
 
 shel 程序位于：/bin 目录下
 
-交 shell ：用于用户与系统进行交互
+交互shell ：用于用户与系统进行交互
 
-系 shell ：用于在系统启动时,启动脚本,默认位置是 /bin/sh
+系统shell ：用于在系统启动时,启动脚本,默认位置是 /bin/sh
 
 常见shell程序：
 
@@ -367,7 +367,7 @@ echo $BASH_SUBSHELL
 
 ##### 后台模式
 
-在后台模式中运行命令可以在处理命令的同时让出CLI,以供使用；在命令末尾加上字符`&.将命令置入后台模式
+在后台模式中运行命令可以在处理命令的同时让出CLI,以供使用；在命令末尾加上字符`&`.将命令置入后台模式
 
 ```bash
 # 例子
@@ -392,7 +392,7 @@ jobs # 显示后台作业信息
 
 ##### 协程
 
-协程可以同时做两件事。在后台生成一个.shell,并在这个子 shell 中执行命令。
+协程可以同时做两件事。在后台生成一个子shell,并在这个子 shell 中执行命令。
 
 ```bash
 # 例子
@@ -784,10 +784,10 @@ chmod options mode file # mode参数可以用八进制模式或者符号模式�
 * g 将权限设置为跟属组一样
 * o 将权限设置跟其他用户一样
 
-```shel
+```bash
 # 例子
-chmo.o+r newfile # 为其他用户添加读取权限
-chmo.u-x newfile # 移除属主已有的执行权限
+chmod o+r newfile # 为其他用户添加读取权限
+chmod u-x newfile # 移除属主已有的执行权限
 ```
 
 #### 改变所属关系
@@ -797,7 +797,7 @@ chown # 改变文件的属主（只有root能改变文件的属主）
     -R # 递归改变
     -l # 改变该文件的所有符号链接文件的所属关系
 # 格式
-chow.options owner.[group] file
+chown options owner.[group] file
 
 chgrp # 改变文件的默认属组（文件的属主能更改属组,还得是新组的成员
 
@@ -940,7 +940,7 @@ fsck options filesystem # 文件系统可以通过设备名,挂载点,UUID引用
 
     可跨多个物理硬盘创建逻辑卷（不同于RAID条带化,LVM条带化没有提供容错）
 
-3.镜像
+3. 镜像
 
    LVM镜像是实时更新的逻辑卷的完整副本
 
@@ -959,7 +959,7 @@ fsck options filesystem # 文件系统可以通过设备名,挂载点,UUID引用
 
     ```bash
     vgcread Vol1（卷组名） /dev/sdb1 # 创建卷组
-    vgdispla.Vol1 # 查看卷组信息
+    vgdisplay Vol1 # 查看卷组信息
     ```
 
 3. 创建逻辑卷
@@ -969,7 +969,7 @@ fsck options filesystem # 文件系统可以通过设备名,挂载点,UUID引用
         -l # 指定分配区段数,或百分比
         -L # 指定使用大小（KB,MB,GB）
         -n # 指定逻辑卷名
-        -lvdispla.Vol1# 查看逻辑卷信息
+        -lvdisplay Vol1# 查看逻辑卷信息
    ```
 
 4. 创建文件系统
@@ -1043,7 +1043,7 @@ dpkg --search absolute_file_name # 查看特定文件属于那个软件包（使
 
 ```bash
 aptitude search package_name # 查找包（隐式添加通配符）
-|i 表示已经安装；p或v表示包可用,但没安装；c 表示包被删除,但配置还在
+# i 表示已经安装；p或v表示包可用,但没安装；c 表示包被删除,但配置还在
 
 aptitude install package_name # 安装指定包（自动安装包依赖）
 ```
@@ -1072,7 +1072,7 @@ aptitude purge package_name # 完全删除包
 
 基于 Red Hat 的系统的核心是rpm工具,常见：
 
-* yum：Red Hat 和 Fedora
+* yum：Red Hat 和 Fedora, 更新版本使用 dnf
 * urpm：Mandriva
 * zypper：openSUSE
 
@@ -1281,7 +1281,7 @@ date +%y%m%d # 以两位数的年月日组合显示日期
 140131
 ```
 
-**注意：命令替换会创建一个.shell 来运行对应的命令,**
+**注意：命令替换会创建一个子shell 来运行对应的命令,**
 
 ### 重定向输入和输出
 
@@ -1296,12 +1296,14 @@ date +%y%m%d # 以两位数的年月日组合显示日期
 *内联输入重定向（inlin.input redirection）* ,使用（<<）,还必须指定一个文本标记来划分输入数据的开始和结尾
 
 ```bash
-comman.<< marker
+command << EOF
+....
+EOF
 # 例子
-w.<<EOF
->tes.string1
->tes.string2
->tes.string3
+wc << EOF
+>test string1
+>test string2
+>test string3
 >EOF
 # 输出
 3 9 42 # wc命令会对内联输入重定向提供的数据进行行,词和字节的计数
@@ -1325,11 +1327,11 @@ expr命令允许在命令行上处理数学表达式,但只能识别少数的数
 
 #### 浮点解决方案
 
-bas.内建计算器 bc
+bash 内建计算器 bc
 
 ##### bc 的基本用法
 
-bas.计算器实际上是一种编程语言,允许在命令行中输入浮点表达式,bash 计算器能识别：
+bash计算器实际上是一种编程语言,允许在命令行中输入浮点表达式,bash 计算器能识别：
 
 * 数字（整数和浮点数）
 * 变量（简单变量和数组）
@@ -1370,7 +1372,7 @@ EOF
 )
 ```
 
-可以.bash 计算器中赋值给变量**在 bash 计算器中创建的变量只在 bash 计算器中有效,不能在 shell 脚本中使用**
+可以在bash 计算器中赋值给变量**在 bash 计算器中创建的变量只在 bash 计算器中有效,不能在 shell 脚本中使用**
 
 ### 退出脚本
 
@@ -1378,7 +1380,7 @@ shell 中运行的每个命令都使用*退出状态码（exit status*）告诉 
 
 #### 查看退出状态码
 
-Linu.提供了一个专门的变量\$? 来保存上个已执行命令的退出状态码
+Linux 提供了一个专门的变量\$? 来保存上个已执行命令的退出状态码
 
 常见退出状态码
 
@@ -1388,7 +1390,7 @@ Linu.提供了一个专门的变量\$? 来保存上个已执行命令的退出�
 
 默认情况下,shell 脚本会以脚本的最后一个命令的退出状态码退出
 
-exi.命令允许在脚本结束时指定一个退出状态码（可以使用变量）
+exit命令允许在脚本结束时指定一个退出状态码（可以使用变量）
 
 如果指定的状态码大于255,shell会通过模运算（对256取余）将结果缩减到0-255区间
 
@@ -1398,23 +1400,23 @@ exi.命令允许在脚本结束时指定一个退出状态码（可以使用变�
 
 ### if-then 语句
 
-if-the.语句格式：
+if-then语句格式：
 
 ```bash
-i.command
+if command
 then
     commands
 fi
 ```
 
-i.后的命令的退出状态码是0,则会运行 then 后的命令
+if 后的命令的退出状态码是0,则会运行 then 后的命令
 
-**注意:** 如.if 后的命令执行失败会在脚本输出中显示失败信息
+**注意:** 如if 后的命令执行失败会在脚本输出中显示失败信息
 
 ### if-then-else 语句
 
 ```bash
-i.command
+if command
 then
     command
 else
@@ -1424,12 +1426,12 @@ fi
 
 ### 嵌套 if
 
-当有多种条件时,可以使用嵌套.if-then 语句
+当有多种条件时,可以使用嵌套if-then 语句
 
 ```bash
-i.command
+if command
 then
-    i.command
+    if command
     then
         ommand
     fi
@@ -1439,10 +1441,10 @@ fi
 也可以使用 elif
 
 ```bash
-i.command
+if command
 then
     command
-eli.command
+elif command
 then
     command
 else
@@ -1452,12 +1454,12 @@ fi
 
 ### test 命令
 
-if-the.不能测试命令退出状态码之外的条件
+if-then不能测试命令退出状态码之外的条件
 
-tes.命令则能测试不同条件,条件成立则会退出并返回状态码0;否则返回非零退出状态码
+test 命令则能测试不同条件,条件成立则会退出并返回状态码0;否则返回非零退出状态码
 
 ```bash
-i.test condition # condition 是 test 命令要测试的一系列参数和值
+if test condition # condition 是 test 命令要测试的一系列参数和值
 then
     commands
 fi
@@ -1466,13 +1468,13 @@ fi
 bash shell 中可以使用另一种形式,无需声明 test 命令
 
 ```bash
-i.[ condition ] # 方括号中是测试条件;condition 两边都有空格
+if [ condition ] # 方括号中是测试条件;condition 两边都有空格
 then
     commands
 fi
 ```
 
-tes.命令可以判断三类条件:
+test 命令可以判断三类条件:
 
 * 数值比较
 * 字符串比较
@@ -1480,7 +1482,7 @@ tes.命令可以判断三类条件:
 
 #### 数值比较
 
-对两个数值进行比较(.bash shell 中只能处理整数)
+对两个数值进行比较(bash shell 中只能处理整数)
 
 ![数值比较](Pics/数值比较.jpg)
 
@@ -1513,7 +1515,7 @@ tes.命令可以判断三类条件:
 
 ### 符合条件测试
 
-if-the.语句允许使用布尔逻辑来组合测试
+if-then语句允许使用布尔逻辑来组合测试
 
 * [ condition1 ] && [ condition2 ] ,两者都需要满足
 * [ condition1 ] || [ condition2 ] ,两者满足其一即可
@@ -1670,7 +1672,7 @@ while 命令允许定义一个要测试的命令,然后循环执行一组命令
 ```bash
 while test command
 do
-    som.commands
+    some commands
 done
 ```
 
@@ -1687,7 +1689,7 @@ until 命令和 while 命令的工作方式相反,只有测试命令的退出状
 ```bash
 until test commands
 do
-    som.commands
+    some commands
 done
 ```
 
@@ -1729,7 +1731,7 @@ done
 
 continue 命令可以跳过某次循环中的剩余命令,但不会终止整个循环
 
-|break 一样,continue 命令也可以通过参数指定继续执行哪一级循环:
+与break 一样,continue 命令也可以通过参数指定继续执行哪一级循环:
 
 `continue n`
 
@@ -1861,7 +1863,7 @@ $@ 会将命令行上的所有参数作为同一字符串内的独立单词
 
 shift 命令会根据参数的相对位置移动命令行参数,默认向左移动一位,\$.的值会被删除(**注意,变量 $0 的值,依旧是程序名不会变**)
 
-也可以一次移动多个位置,指明移动位数即可: shif.N
+也可以一次移动多个位置,指明移动位数即可: shift N
 
 ### 处理选项
 
@@ -1982,7 +1984,7 @@ getopts 处理每个选项时会将 OPTIND 环境变量值增一
 
 ### 将选项标准化
 
-Linu.中有一些常用选项
+Linux中有一些常用选项
 
 ![常用选项](Pics/常用选项.jpg)
 
@@ -2058,7 +2060,7 @@ bash shell 保留了前三个(0/1/2)
 
 ### 重定向错误
 
-在使用重定向符号时定.STDERR 文件描述符即可
+在使用重定向符号时定向 STDERR 文件描述符即可
 
 1. 只重定向错误
 
@@ -2257,7 +2259,7 @@ cat 从后面语句获取输入,然后输出被重定向到了文件
 
 ### 处理信号
 
-Linu.利用信号与运行在系统中的进程进行通信,可以通过脚本编程,使其在收到特定信号时执行某些命令,从而控制 shell 脚本的操作
+Linux利用信号与运行在系统中的进程进行通信,可以通过脚本编程,使其在收到特定信号时执行某些命令,从而控制 shell 脚本的操作
 
 #### 重温 Linux 信号
 
@@ -2417,9 +2419,9 @@ renice 命令有些限制
 
 #### 用 at 命令来计划执行作业
 
-a.命令允许指定 Linux 系统何时运行脚本
+at 命令允许指定 Linux 系统何时运行脚本
 
-at.守护进程会检查系统上的一个特殊目录(通常位于/var/spool/at)来获取用 at 命令提交的作业
+atd 守护进程会检查系统上的一个特殊目录(通常位于/var/spool/at)来获取用 at 命令提交的作业
 
 1. at 命令的格式
 
@@ -2443,9 +2445,9 @@ at.守护进程会检查系统上的一个特殊目录(通常位于/var/spool/at
 
 2. 获取作业的输出
 
-    Linu.系统会将作业的输出通过邮件系统发送给用户
+    Linux系统会将作业的输出通过邮件系统发送给用户
 
-    a.命令利用 sendmail 应用程序发送邮件
+    at 命令利用 sendmail 应用程序发送邮件
     可以使用重定向获得输出信息或使用 -M 选项屏蔽产生的信息
 
 3. 列出等待的作业
@@ -2477,7 +2479,7 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 
 3. 浏览 cron 目录
 
-    有四个预配置.cron 脚本目录
+    有四个预配置 cron 脚本目录
 
     hourly,daily,monthly,weekly
 
@@ -2485,7 +2487,7 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 
 4. anacron 程序
 
-    anacro.程序使用自己的时间表(/etc/anacrontab)来检查作业,如果某个作业错过了执行时间,anacron 会尽快运行该作业,但只会处理位于 cron 目录的作业,并且不会处理间隔小于一天的作业
+    anacron程序使用自己的时间表(/etc/anacrontab)来检查作业,如果某个作业错过了执行时间,anacron 会尽快运行该作业,但只会处理位于 cron 目录的作业,并且不会处理间隔小于一天的作业
 
     anacrod 时间表
 
@@ -2497,7 +2499,7 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 
 #### 使用新 shell 启动脚本
 
-每次启动一个.shell 时, bash shell 会运行 .bashrc 文件,可以将脚本放入该文件,使得在打开一个 bash shell 时,脚本会自动运行
+每次启动一个 shell 时, bash shell 会运行 ~/.bashrc 文件,可以将脚本放入该文件,使得在打开一个 bash shell 时,脚本会自动运行
 
 ## 创建函数
 
@@ -2511,7 +2513,7 @@ cron 程序会在后台运行并检查一个特殊的表(cron 时间表),获取�
 function name {
     commands
 }
-|name 定义了函数的名称
+# name 定义了函数的名称
 ```
 
 第二种类似其他语言的方式
@@ -2550,13 +2552,13 @@ bash shell 使用 return 命令来推出函数并返回特定的退出状态码
 ```bash
 function name {
     commands
-    retur.N
+    return N
 }
 name() {
 commands
 return N
 }
-|N 为指定的返回值(必须是0~255)
+# N 为指定的返回值(必须是0~255)
 ```
 
 #### 使用函数输出
@@ -2606,7 +2608,7 @@ funname $1 $2
 
 1. 全局变量
 
-    全局变量是.shell 脚本中任何地方都有效的变量;默认情况下,在脚本中定义的任何变量都是全局变量
+    全局变量是 shell 脚本中任何地方都有效的变量;默认情况下,在脚本中定义的任何变量都是全局变量
 
 2. 局部变量
 
@@ -2684,11 +2686,11 @@ echo ${!ass_array[@]}
 function factorial{
     if [$1 -eq 1]
     then
-        cho 1
+        echo 1
     else
-        ocal temp=$ [ $1 -1 ]
-        ocal result=`factorial $temp`
-        cho $[ $result * $1 ]
+        local temp=$ [ $1 -1 ]
+        local result=`factorial $temp`
+        echo $[ $result * $1 ]
     fi
 }
 ```
@@ -2704,7 +2706,7 @@ source /script_lib
 . /script_lib
 ```
 
-sourc.命令会在当前 shell 上下文中执行命令, source 有个别名,称为*点操作符*(dot operator)
+source 命令会在当前 shell 上下文中执行命令, source 有个别名,称为*点操作符*(dot operator)
 
 ### 在命令行上使用函数
 
@@ -2767,11 +2769,11 @@ read option
 
 ```bash
 case $option in
-0)bread ;;
-1)diskspac.;;
-2)whoseo.;;
-3)memusag.;;
-*)clear;echo "Sorry, wrong selection" ;;
+0) bread ;;
+1) diskspac.;;
+2) whoseo.;;
+3) memusag.;;
+*) clear;echo "Sorry, wrong selection" ;;
 esac
 ```
 
@@ -2812,7 +2814,7 @@ dialog --widget parameters
 # parameters 定义窗口大小以及部件需要的文本
 ```
 
-每.dialog 部件都提供了两种形式的输出
+每个 dialog 部件都提供了两种形式的输出
 
 * 使用 STDERR
 * 使用退出状态码
@@ -2883,17 +2885,17 @@ Linux 中使用最广泛的两种命令行编辑器: sed 和 gawk
 
 #### sed 编辑器
 
-set 被称为*流编辑器(stream editor)*,sed 编辑器处理流程:
+sed 被称为*流编辑器(stream editor)*,sed 编辑器处理流程:
 
 1. 每次从输入中读取一行数据
 2. 根据命令匹配数据
 3. 修改数据流中的数据
 4. 将新数据输出到 STDOUT
 
-set 格式如下:
+sed 格式如下:
 
 ```bash
-set options script file
+sed options script file
     -e # 使用多条命令
     -f # 使用 sed 脚本文件
     -p # 不产生命令输出,使用print命令完成输出
@@ -2914,22 +2916,22 @@ echo "This is a test" | sed 's/test/big test'
 
 2. 替换字符
 
-    set 允许使用其他字符作为替换命令中的字符串分隔符
+    sed 允许使用其他字符作为替换命令中的字符串分隔符
 
     ```bash
-    set 's!/bin/bash!/bin/csh!' /etc/passwd # 使用!作为分隔符
+    sed 's!/bin/bash!/bin/csh!' /etc/passwd # 使用!作为分隔符
     ```
 
 使用多条命令
 
 ```bash
-set -e 's/brown/green/; s/dog/cat/' filename.txt
+sed -e 's/brown/green/; s/dog/cat/' filename.txt
 ```
 
 从文件中读取命令
 
 ```bash
-set -f script.sed filename.txt
+sed -f <script.sed> filename.txt
 ```
 
 ##### 使用地址
