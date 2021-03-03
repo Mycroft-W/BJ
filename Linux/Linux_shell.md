@@ -951,14 +951,14 @@ fsck options filesystem # 文件系统可以通过设备名,挂载点,UUID引用
     将硬盘上的物理分区转换为Linu.LVM的物理卷区段,使用`fdisk`命令,通过`t`命令改变分区类型（8e类型表示分区会作为Linux LVM系统的一部分）；然后通过`pvcreate`命令创建实际的物理卷
 
     ```bash
-    pvcreat./dev/sdb1 # 创建物理卷
-    pvdispla./dev/sdb1 # 查看物理卷信息
+    pvcreate /dev/sdb1 # 创建物理卷
+    pvdisplay /dev/sdb1 # 查看物理卷信息
     ```
 
 2. 创建卷组
 
     ```bash
-    vgcread Vol1（卷组名） /dev/sdb1 # 创建卷组
+    vgcreate Vol1（卷组名） /dev/sdb1 # 创建卷组
     vgdisplay Vol1 # 查看卷组信息
     ```
 
