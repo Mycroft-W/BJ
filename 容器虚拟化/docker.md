@@ -418,3 +418,43 @@ docker compose 命令格式:
 |docker-compse config -q|验证yaml配置是否正确|
 |docker-compse stop|停止容器|
 |docker-compse start|启动容器|
+
+## docker 底层实现
+
+docker 底层的核心技术包括Linux上的命名空间(Namespaces),控制组(Control groups),Union文件系统(Union file systems)和容器格式(Container format)
+
+其中利用命名空间来做权限的隔离控制,利用cgroups来做资源分配
+
+命名空间:
+
+|类型|描述|
+|--|--|
+|pid命名空间|不同用户的进程就是通过pid命名空间隔离开的|
+|net命名空间|网络隔离是通过net命名空间是实现的|
+|ipc命名空间|容器中进程交互采用了IPC(interprocess communication)|
+|mnt命名空间|类似chroot,将一个进程放到一个特定的目录执行,mnt命名空间允许不同命名空间的进程看到的文件结构不同|
+|uts命名空间|UTS(UNIX Time-sharing System)允许每个容器拥有独立的hostname和domain name,使其在网络上可以被视为一个独立的节点而非主机上的一个进程|
+|user命名空间|每个容器可以有不同的用户和组id,也就是说可以在容器内用容器内部的用户执行程序而非主机上的用户|
+
+控制组可以提供对容器的内存,CPU,磁盘IO等资源的限制和审计管理
+
+### 资源限制
+
+默认情况下,容器没有资源限制,它会尽可能地使用宿主机能够分配给它的资源
+
+#### 限制内存
+
+在运行容器时可以强制限制容器地资源使用地限制,即只允许容器使用不超过给定数量地系统内存
+
+|选项|描述|
+|--|--|
+|-m 或 -memory|容器可以使用的最大内存量,最小值为4MB|
+|--memory-swap|内存加交换分区的容量|
+|--kernel-memory|容器可以使用的最大内核内存量,最小4MB|
+
+#### 限制docker使用CPU
+
+|选项|描述|
+|--|--|
+|--cpus|指定容器可以使用的可用CPU资源|
+|--cpuset-cpu|限制容器可以使用的特定CPU或核心|
