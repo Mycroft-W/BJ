@@ -75,6 +75,8 @@ Docker 存在一个特殊镜像,"scratch"; 这个镜像是虚拟的概念,并不
 docker build [options] <context_path/URL>
 ```
 
+**注意**: docker build 命令会提交Dockerfile所在上下文的**所有内容**给引擎去构建镜像
+
 docker build 还支持从URL构建,也可以用给定的tar压缩包构建,还可以从标准输入中读取Dockerfile进行构建
 
 ### Dockerfile 指令
@@ -452,7 +454,7 @@ docker 底层的核心技术包括Linux上的命名空间(Namespaces),控制组(
 |--memory-swap|内存加交换分区的容量|
 |--kernel-memory|容器可以使用的最大内核内存量,最小4MB|
 
-#### 限制docker使用CPU
+#### 限制CPU
 
 |选项|描述|
 |--|--|
