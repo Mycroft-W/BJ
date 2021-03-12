@@ -357,7 +357,7 @@ pwd ; ls ; cd /etc ; pwd ; cd ; pwd ; ls
 (pwd ; ls ; cd /etc ; pwd ; cd ; pwd ; ls)
 ```
 
-可以使用环境变量命令查看是否生成了.shell
+可以使用环境变量命令查看是否生成了shell
 
 ```bash
 echo $BASH_SUBSHELL
@@ -1209,7 +1209,7 @@ shell 脚本的第一行指定要使用的shell,格式为
 #!/bin/bash
 ```
 
-先给脚本添加执行权限,然后要.shell 能运行脚本有两个方法：
+先给脚本添加执行权限,然后要shell 能运行脚本有两个方法：
 
 * 将脚本所在目录添加至PATH环境变量中
 * 使用路径（两种都可）来引用shell脚本文件
@@ -2281,7 +2281,7 @@ bash shell 允许使用键盘上的组合键生成两种基本的 Linux 信号
 
     `Ctrl+Z`组合键会生成一.SIGTSTP 信号,停止 shell 中运行的任何进程.停止(stopping)和终止(terminating)不同,停止进程会让程序继续保留在内存中,并能从上次停止的位置继续运行
 
-    在停止一个进程时.shell 会进行通知,并给停止的进程分配一个作业号(job number)
+    在停止一个进程时shell 会进行通知,并给停止的进程分配一个作业号(job number)
 
     可以使用 ps 命令来查看已停止的作业
 
@@ -2289,7 +2289,7 @@ bash shell 允许使用键盘上的组合键生成两种基本的 Linux 信号
 
 #### 捕获信号
 
-`trap`命令允许指.shell 脚本要监看并从 sehll 中拦截的 Linux 信号,如果脚本收到了`trap`命令中列出的信号,该信号不在由 shell 处理,而是交由本地处理
+`trap`命令允许指shell 脚本要监看并从 sehll 中拦截的 Linux 信号,如果脚本收到了`trap`命令中列出的信号,该信号不在由 shell 处理,而是交由本地处理
 
 `trap`命令的格式是:
 
@@ -2299,7 +2299,7 @@ trap commands signals # signals 代表要捕获的信号,commands 是在捕获�
 
 #### 捕获脚本退出
 
-要捕.shell 脚本的退出,只要在`trap`命令后面加上 EXIT 信号即可
+要捕shell 脚本的退出,只要在`trap`命令后面加上 EXIT 信号即可
 
 ```bash
 trap "echo Goodbye..." EXIT # 捕获 EXIT 信号
@@ -2327,7 +2327,7 @@ trap -- SIGINT
 
 #### 后台运行脚本
 
-要以后台模式运.shell 脚本,在命令结尾处添加 & 符号即可
+要以后台模式运shell 脚本,在命令结尾处添加 & 符号即可
 
 ```bash
 ./test.sh &
@@ -2761,7 +2761,7 @@ read option
 
 #### 创建菜单函数
 
-为每个菜单选型创建独立.shell 函数;同时将菜单布局也作为一个函数创建
+为每个菜单选型创建独立shell 函数;同时将菜单布局也作为一个函数创建
 
 #### 添加菜单逻辑
 
