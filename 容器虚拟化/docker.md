@@ -7,8 +7,8 @@ SaaS(Software as a Service),软件即服务
 
 更轻量级的虚拟化技术,基于 Linux 的内核功能(namespace, cgroup),在Linux 中早期出现的LXC,后出现的 docker 基于lxc并进行一系列改进添加了基于Overlay 类的Union FS等技术,后经过多次技术迭代后成为了现在应用最广泛的容器技术
 
-![Containers vs VMs](Pics\VMvsContainers.png)
-![docker特性](Pics\dockervscontainer.png)
+![Containers vs VMs](./Pics\VMvsContainers.png)
+![docker特性](./Pics\dockervscontainer.png)
 
 ## docker 简介
 
@@ -109,7 +109,7 @@ RUN <命令>                              # shell 格式
 RUN ["可执行文件", "参数1", " 参数2"]    # exec 格式
 ```
 
-每一个RUN行为,会新建一层;而 Union FS 有最大层限制,Overlay 最大128层;需要执行多条命令时要使用`&&`连接,镜像存储时每一层的东西并不会在下一层被删除,所以在每层构建后要清理掉无关文件
+每一个RUN行为,会新建一层;而 Union FS 有最大层限制,Overlay2 最大128层;需要执行多条命令时要使用`&&`连接,镜像存储时每一层的东西并不会在下一层被删除,所以在每层构建后要清理掉无关文件
 
 #### COPY 复制
 
@@ -460,3 +460,9 @@ docker 底层的核心技术包括Linux上的命名空间(Namespaces),控制组(
 |--|--|
 |--cpus|指定容器可以使用的可用CPU资源|
 |--cpuset-cpu|限制容器可以使用的特定CPU或核心|
+
+## 容器内信号处理
+
+docker 的stop和kill命令的信号都会发送给容器内pid为1的进程(1号进程为CMD指定命令启动的进程)
+
+docker 在使用stop命令时会默认先发送SIGTERM信号,如果进程没有响应,在等待一段时间后发送SIGKILL信号直接杀死进程

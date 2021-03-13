@@ -72,7 +72,7 @@ Windows权限分类：
 
     没有磁盘容错功能
 
-    ![Raid0](Pics/Raid0.jpg)
+    ![Raid0](./Pics/Raid0.jpg)
 
 4. 镜像卷（RAID 1）
 
@@ -86,7 +86,7 @@ Windows权限分类：
 
     磁盘利用率只有50%
 
-    ![Raid1](Pics/Raid1.jpg)
+    ![Raid1](./Pics/Raid1.jpg)
 
 5. RAID 5
 
@@ -97,11 +97,11 @@ Windows权限分类：
     拥有磁盘容错功能（最多损失1块硬盘）
 
     磁盘利用率是n-1块硬盘
-    ![Raid5](Pics/Raid5.jpg)
+    ![Raid5](./Pics/Raid5.jpg)
 
 RAID 0和RAID 1组合使用,可以获得两者优势
 
-![Raid10](Pics/Raid1+0.jpg)
+![Raid10](./Pics/Raid1+0.jpg)
 
 逻辑运算：
 
