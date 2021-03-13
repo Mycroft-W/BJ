@@ -20,7 +20,7 @@ VMware ESXi, 采用裸金属架构
 
 使用 vSphere Client 连接管理
 
-![VSphere Client 界面](./Pics\Vcenter.png)
+![VSphere Client 界面](./Pics/Vcenter.png)
 
 ### 权限管理
 

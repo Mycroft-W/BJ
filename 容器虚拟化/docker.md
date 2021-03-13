@@ -7,8 +7,8 @@ SaaS(Software as a Service),软件即服务
 
 更轻量级的虚拟化技术,基于 Linux 的内核功能(namespace, cgroup),在Linux 中早期出现的LXC,后出现的 docker 基于lxc并进行一系列改进添加了基于Overlay 类的Union FS等技术,后经过多次技术迭代后成为了现在应用最广泛的容器技术
 
-![Containers vs VMs](./Pics\VMvsContainers.png)
-![docker特性](./Pics\dockervscontainer.png)
+![Containers vs VMs](./Pics/VMvsContainers.png)
+![docker特性](./Pics/dockervscontainer.png)
 
 ## docker 简介
 
