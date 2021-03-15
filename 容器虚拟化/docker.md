@@ -466,3 +466,5 @@ docker 底层的核心技术包括Linux上的命名空间(Namespaces),控制组(
 docker 的stop和kill命令的信号都会发送给容器内pid为1的进程(1号进程为CMD指定命令启动的进程)
 
 docker 在使用stop命令时会默认先发送SIGTERM信号,如果进程没有响应,在等待一段时间后发送SIGKILL信号直接杀死进程
+
+由于docker 会默认将信号传递给1号进程,而一些进程并未做信号处理,所以需要使用脚本(trap命令)捕获信号然后控制进程优雅退出
