@@ -165,13 +165,13 @@ spec:
 
 ## Pod 详解
 
-Pod 是 Kubernetes 调度的最小单位, k8s 的大多服务以及应用都是运行在 Pod 中(kubelet 运行在主机中)
+Pod 是 Kubernetes 控制资源的最小单位, k8s 的大多服务以及应用都是运行在 Pod 中(kubelet 运行在主机中);Pod 中的容器共享网络和存储,Pod 中的容器可以使用 localhost 互相通信,可以直接通过进程间通信
 
-Pod 中的容器共享网络和存储,Pod 中的容器可以使用 localhost 互相通信,可以直接通过进程间通信
+Pod 是给定的应用的运行实例
 
 ### Pod 的生存周期
 
-一个 Pod 从创建删除一般经过以下几个阶段: 创建 pause 容器,init 初始化,创建应用容器(可以有多个,并行启动),删除容器;其中创建应用容器还可以有 PostStart 和 PerStop 阶段以及就绪探测和生存探测
+一个 Pod 从创建删除一般经过以下几个阶段: 创建 pause 容器,init 初始化,创建应用容器(可以有多个,并行启动),删除容器;其中创建应用容器还可以有两个 Hook PostStart 和 PerStop以及就绪探测和生存探测
 
 * pause 容器: 用于共享网络栈,存储卷,生命周期与 Pod 等长
 * init 初始化:在初始化阶段可先启动一些容器(initC)以生成应用容器所需要的资源
@@ -302,13 +302,40 @@ kubectl roolout undo deployment/nginx-deployment --to-revision=2 # 回滚,--to-r
 
 **注意**:由于 kubernetes 只会记录触发 rollout 的操作,所以当手动进行扩容后回滚只有 Deployment 中的 Pod template 才会回滚
 
-#### ReplicationController & ReplicaSet
+### ReplicationController & ReplicaSet
 
 ### DaemonSet 详解
 
 ### StatefulSet 详解
 
 ### Job & CronJob
+
+Job 会创建一个或多个 Pod 运行直到成功退出,用于执行一次性任务
+
+Job 的资源清单示例如下:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never           # 重启策略
+  backoffLimit: 4                    # 尝试次数
+```
+
+重启策略有两种:
+
+* Never,从不重启
+* OnFailure, 失败时重启
+
+CronJob 会重复地创建 Job
 
 ## 服务发现
 
@@ -368,9 +395,13 @@ spec:
 * LoadBalancer: 使用云提供商的负载均衡器,向外部暴露服务
 * ExternalName: 通过返回 `CNAME`,将服务映射到`ExternalName`字段内容
 
+![ClusterIP](./Pics/ClusterIP.png)
+
 ##### NodePort 类型
 
-kubernetes master 会从给定的配置范围内(默认:30000-32767)分配端口,每个 Node 将从该端口代理到 `Service`
+kubernetes master 会从给定的配置范围内(默认:30000-32767)分配端口,每个 Node 将从该端口代理到 `Service`,从外部访问集群的每个 node 都能访问到服务
+
+![NodePort](./Pics/NodePort.png)
 
 ##### LoadBalancer 类型
 
@@ -415,6 +446,8 @@ spec:
   externalName: my.database.example.com       # 别名
 ```
 
+![ExternalName](./Pics/ExternalName.png)
+
 #### Service 代理模式
 
 在 Kubernetes 集群中,每个 Node 运行一个 kube-proxy 进程;kube-proxy 为 Service 实现了一种 VIP(虚拟IP)的形式
@@ -447,13 +480,459 @@ ipvs 相比 iptables, 同样基于 netfilter 的 hook 功能,但使用 hash 表�
 
 ![ipvs](./Pics/service-ipvs-overview.png)
 
+#### Headless Service
+
+通过指定 `spec.clusterIP` 的值为"None" 来创建 Headless Service,两种情况:
+
+* 配置 Selector
+  如果配置了 selector, 通过 DNS 可以直接得到 backend Pods 的 IP,可以不通过 kubernetes 负载调度直接访问 Pod
+* 不配置 Selector
+  如果不配置 selector,DNS 会查找和配置
+
 ### Ingress 详解
 
-通常情况下 Service 和 Pod 仅可在集群内部通过 IP 访问;而 Ingress 是授权入站连接到达集群服务的规则集合
+通常情况下 Service 和 Pod 仅可在集群内部通过 IP 访问;而 Ingress 是授权入站连接到达集群服务的规则集合,通常是 HTTP;同时会提供负载均衡,SSL 终止和虚拟主机功能
 
-**注意**: 为了使 Ingress 能正常工作,集群中必须运行 Ingress controller,而 kubernetes 集群自身并不含有,所以需要选择适合自己集群的 Ingress controller 或自己实现一个
+**注意**: 为了使 Ingress 能正常工作,集群中 master 节点必须运行 Ingress controller,而 kubernetes 集群自身并不含有,所以需要选择适合自己集群的 Ingress controller 或自己实现一个
 
 * kubernetes 当前支持并维护 GCE 和 nginx 两种
 * F5 支持维护 F5 BIG-IP Controller for Kubernetes
 * Traefik 是功能齐全的 Ingress controller
 * Istio 使用 CRD Gateway 来控制 Ingress 流量
+
+通过 yaml 文件创建 Ingress:
+
+```yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  annotations:                  # 说明
+spec:
+  rules:                        # 入站规则
+  - host:                       # 域名
+    http:                       # 协议
+      paths:                    # 路径
+      - path: /testpath
+        backend:                # 匹配的后端
+          serviceName: test     # 服务名
+          servicePort: 80       # 服务端口
+```
+
+Ingress 规则要包含以下信息:
+
+* 可选的域名,如果没有域名,则通过指定的 IP 应用 HTTP 入站流量规则
+* 路径列表,关联一个后端服务
+* 后端服务,含有服务名和端口的 backend,HTTP 和 HTTPS 请求会匹配域名和路径发送都 backend
+
+#### Ingress 类型
+
+##### 单服务 Ingress
+
+通过仅指定一个默认后端,同时不填写规则
+
+```yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+spec:
+  backend:
+    serviceName: testsvc
+    servicePort: 80
+```
+
+Ingress controller 会给 Ingress 分配一个 IP,用以进入
+
+##### 扩展
+
+通过书写多个规则和多个后端,使负载均衡器的数量减少
+
+```yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: simple-fanout-example
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: foo.bar.com
+    http:
+      paths:
+      - path: /foo                # 不同的 URI 对应不同的 backend
+        backend:
+          serviceName: service1
+          servicePort: 4200
+      - path: /bar
+        backend:
+          serviceName: service2
+          servicePort: 8080
+```
+
+基于 HTTP URI 请求,来配置多个后端服务
+
+##### 基于域名的虚拟主机
+
+通过配置不同的域名和对应的不同服务,做到基于域名的虚拟主机
+
+```yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: name-virtual-host-ingress
+spec:
+  rules:
+  - host: foo.bar.com                 # 不同的域名对应不同的服务
+    http:
+      paths:
+      - backend:
+          serviceName: service1
+          servicePort: 80
+  - host: bar.foo.com
+    http:
+      paths:
+      - backend:
+          serviceName: service2
+          servicePort: 80
+  - http:
+      paths:
+      - backend:
+          serviceName: service3
+          servicePort: 80
+```
+
+当有不指定域名的服务时,所有未指定域名的流量会被负载到这个服务,如上所示,对于`foo.bar.com`的访问会转发给`service1`;对`bar.foo.com`的访问会转发给`service2`;对于没有指定域名的访问会转发给`service3`
+
+#### TLS
+
+通过指定包含 TLS 私钥和证书的 Secret 对象,可以使 Ingress 支持 TLS 加密验证
+
+Secret 对象包含以下信息:
+
+```yaml
+apiVersion: v1
+kind: Secret                        # 资源类型
+metadata:
+  name: testsecret-tls
+  namespace: default
+data:
+  tls.crt: base64 encoded cert      # base64 编码的证书
+  tls.key: base64 encoded key       # base64 编码的私钥
+type: kubernetes.io/tls
+```
+
+在 Ingress 中引用 Secret 会告知 Ingress controller 与 client 连接时使用 TLS
+
+```yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: tls-example-ingress
+spec:
+  tls:                            # 使用 TLS 加密
+  - hosts:                        # 域名
+    - sslexample.foo.com
+    secretName: testsecret-tls    # 域名的 Secret
+  rules:
+    - host: sslexample.foo.com
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: service1
+            servicePort: 80
+```
+
+要注意的是,不同的 ingress controller 对 TLS 的支持特性有区别,请查看使用的 ingress controller 的参考手册
+
+#### 更新 Ingress
+
+通过编辑对象的 yaml 文件,然后应用即可更新 Ingress
+
+#### 注意事项
+
+要注意的是,**在大多数资源清单中`annotations`只起到注释作用,但在 ingress 中用于声明一些功能的实现和配置**
+
+## 调度器
+
+调度器用于监控*没有指定 Node 新建的 Pods*,通过一系列策略来将 Pod 运行在适合的 Node 上
+
+kubernetes 中含有一个默认的调度器(kube-scheduler)运行在 control plane 之上,根据每个 Pod 需求得不同来进行调度;在合适的 Node(称为 feasible nodes)运行 Pod,如果没有合适的 Node,则不进行调度,直到有合适的 Node
+
+在资源清单中,可以通过`spec.schedulername`指定调度器
+
+### 调度过程
+
+调度器通过两个步骤进行 Node 选择:
+
+1. Filtering(过滤)
+2. Scoring(得分)
+
+第一个步骤会过滤掉不符合 Pod 运行条件的 Node,第二步则对符合运行条件的 Node 进行打分,然后调度 Pod 至得分最高的 Node,如果有多个相同最高得分的 Node 则随机选择其中一个
+
+有两个方式来配置过滤和得分:
+
+1. 调度策略,配置 Predicates(预选)来过滤,配置 Priorities(优选)来得分
+2. 调度配置文件,配置实现不同的调度阶段,包括:排队,过滤,得分,绑定,备用,允许等
+
+### 分配 Pods 到 Nodes
+
+直接分配 Pod 到 Node 有两种方法,第一种使可以通过使用标签选择器来约束 Pod 只能运行在某些特定 Node 或者最好运行在某些 Node 之上,使用这种方法会跳过调度策略,直接分配 Node
+
+在 Pod 的资源清单中,通过 `spec.nodeSelector` 字段来指定要匹配的标签,选择 Pod 运行的 Node
+
+首先,给 Node 打上标签:
+
+```shell
+kubectl label nodes <node-name> <label-key>=<label-value>    # 给节点添加标签
+kubectl label nodes k8s-node01 disktype=ssd
+```
+
+然后,在 Pod 的资源清单中添加标签选择器:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  nodeSelector:
+    disktype: ssd
+```
+
+在 kubernetes cluster 中,每个节点都有内建的标签,在不同的环境下标签的内容有所不同,依赖于部署环境
+
+![nodes-labels](./Pics/nodes-labels.png)
+
+第二种是直接指定要运行 Pod 的 Node 名称,在资源清单中通过`spec.nodeName`指定
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  nodeName: kube-01           # 指定运行节点
+```
+
+使用`nodeName`指定 Node 有以下几条限制:
+
+* 如果选择的 nodeName 不存在, Pod 不会运行,一些情况下会被自动删除
+* 如果指定的 Node 没有足够的资源运行 Pod, Pod 会失败并显示原因,如:OutOfmemory 或者 OutOfcpu
+* 在云环境中 nodeName 并不总是固定的
+
+### 亲和性和反亲和性
+
+亲和/反亲和提供了一种更宽泛的匹配机制来进行 Pod 的调度,将 Pod 调度到硬件环境和软件环境都能满足的 Node 节点
+
+#### Node 亲和性
+
+Node 亲和提供了两个类型:
+
+* `requiredDuringSchedulingIgnoredDuringExecution` 需求,硬亲和
+* `preferredDuringSchedulingIgnoredDuringExecution` 偏好,软亲和
+
+硬亲和,是必须得到满足才会进行调度,得不到满足则不调度;而软亲和,在无法满足的情况下也会进行调度;在两者同时存在时,如果有多个 Node 满足硬亲和的条件,则通过计算满足软亲和的得分来调度 Pod(得分高的)
+
+在资源清单中使用`spec.affinity.nodeAffinity`来指定 Node 亲和条件
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: with-node-affinity
+spec:
+  affinity:                                             # 亲和性
+    nodeAffinity:                                       # node 亲和性
+      requiredDuringSchedulingIgnoredDuringExecution:   # 硬亲和
+        nodeSelectorTerms:                              # Node 选择器条件
+        - matchExpressions:                             # 匹配的语法
+          - key: kubernetes.io/e2e-az-name              # 键
+            operator: In                                # 操作符
+            values:                                     # 值,可以是列表
+            - e2e-az1
+            - e2e-az2
+      preferredDuringSchedulingIgnoredDuringExecution:  # 软亲和
+      - weight: 1                                       # 权重分
+        preference:                                     # 偏好
+          matchExpressions:
+          - key: another-node-label-key
+            operator: In
+            values:
+            - another-node-label-value
+  containers:
+  - name: with-node-affinity
+    image: k8s.gcr.io/pause:2.0
+```
+
+亲和性操作符有以下几种:
+
+|操作符|描述|
+|--|--|
+|In|在范围中|
+|NotIn|不在范围中|
+|Exists|存在|
+|DoesNotExist|不存在|
+|Gt|大于|
+|Lt|小于|
+
+由于,调度策略是在运行 Pod 前执行,在 Pod 运行后,当 Node 变化使得不再满足调度策略时,Pod 不会移除,而是会继续运行
+
+#### Inter-Pod(Pod 间)亲和性和反亲和性
+
+Pod间 亲和/反亲和在 Node 中已存在 Pod 的情况下,可以考虑已存 Pod 对新建的 Pod 的影响,然后进行调度;相比于 Nod 亲和性,可以使用拓扑域(topology domain)对匹配的 Node 进行界定
+
+和 node 亲和一样,Pod间亲和/反亲和也有两种类型:
+
+* `requiredDuringSchedulingIgnoredDuringExecution`
+* `preferredDuringSchedulingIgnoredDuringExecution`
+
+在资源清单中使用`spec.affinity.podAffinity`来指定 Pod 间亲和/反亲和
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: with-pod-affinity
+spec:
+  affinity:
+    podAffinity:                                        # Pod 间亲和
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: security
+            operator: In
+            values:
+            - S1
+        topologyKey: topology.kubernetes.io/zone        # 拓扑域
+    podAntiAffinity:                                    # Pod间反亲和
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: security
+              operator: In
+              values:
+              - S2
+          topologyKey: topology.kubernetes.io/zone
+  containers:
+  - name: with-pod-affinity
+    image: k8s.gcr.io/pause:2.0
+```
+
+原则上,拓扑域的`topologyKey`可以是任意合法的标签值,但为了性能和安全因素,有以下几条约束:
+
+1. 对于 Pod 亲和/反亲和,硬亲和与软亲和的`topologyKey`值都不能为空
+2. 对于反亲和中的硬亲和,录取控制器(LimitPodHardAntiAffinityTopology)将`topology`限定为了`kubernetes.io/hostname`,如果要使用指定拓扑域,则需要修改或禁用控制器
+
+### 污点和容忍
+
+节点亲和是为了将 Pod 吸引到 Node,而污点(Taints)则相反,是为了拒绝 Pod 部署到 Node
+
+使用污点和容忍是为了避免将 Pod 调度到不当的节点;Pod 不会调度到无法容忍的 Node 上
+
+使用以下命令可以给 Node 加上污点:
+
+```shell
+kubectl taint nodes <node-name> <key-name>=<value-name>:<NoSchedule> # 设置污点和影响
+
+kubectl taint nodes k8s-node01 cpu=amd:NoSchedule
+```
+
+要移除污点则在以上命令加上减号(-),即可:
+
+```shell
+kubectl taint nodes k8s-node01 cpu=amd:NoSchedule-
+```
+
+在Pod 的资源清单中`spec.tolerations`字段指定容忍项:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    env: test
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  tolerations:                        # 容忍
+  - key: "example-key"                # 键
+    operator: "Exists"                # 操作符,不指定时默认是 Equal
+    value: "master"                   # 操作符是 Exists 时,忽略
+    effect: "NoSchedule"              # 影响
+```
+
+**Note**:有以下两种特殊情况:
+
+1. 空的键和操作符为 Exists 会容忍所有污点
+2. 空的影响匹配键值对的影响
+
+污点的影响有以下三种:
+
+|影响|描述|
+|--|--|
+|NoSchedule|不允许调度|
+|PreferNoSchedule|尽量不调度|
+|NoExecute|不许运行,驱逐已经运行的,禁止新运行|
+
+一般情况下,如果一个 Node 被打上 NoExecute 的污点时,会立即驱逐不容忍的 Pod,可以通过添加`tolerationSeconds`字段,指定容忍时间
+
+```yaml
+tolerations:
+- key: "key1"
+  operator: "Equal"
+  value: "value1"
+  effect: "NoExecute"
+  tolerationSeconds: 3600     # 容忍3600秒后被驱逐
+```
+
+污点和容忍可以灵活地拒绝或驱逐 Pod,有以下几个场景:
+
+* 专用节点,例如 master 节点
+* 特殊硬件,比如 GPU
+* 基于污点驱逐,例如 Node 故障时
+
+#### 基于污点的驱逐
+
+在特定情况下, Node controller 会自动给 Node 打上污点和 NoExecute 影响:
+
+* node.kubernetes.io/not-ready
+* node.kubernetes.io/unreachable
+* node.kubernetes.io/out-of-disk
+* node.kubernetes.io/memory-pressure
+* node.kubernetes.io/disk-pressure
+* node.kubernetes.io/network-unavailable
+* node.kubernetes.io/unschedulable
+* node.cloudprovider.kubernetes.io/uninitialized
+
+如果 Node 恢复正常,Node controller 则会自动去除污点
+
+**Note**:对于`node.kubernetes.io/not-ready`和`node.kubernetes.io/unreachable` 会自动添加`tolerationSeconds=300`
+
+在创建 DaemonSet pods 时添加两条没有时限的容忍以保证不会被驱逐:
+
+* node.kubernetes.io/unreachable
+* node.kubernetes.io/not-ready
+
+DaemonSet controller 会自动创建不许调度的容忍,防止 DaemonSets 退出:
+
+* node.kubernetes.io/memory-pressure
+* node.kubernetes.io/disk-pressure
+* node.kubernetes.io/out-of-disk (only for critical pods)
+* node.kubernetes.io/unschedulable (1.10 or later)
+* node.kubernetes.io/network-unavailable (host network only)
