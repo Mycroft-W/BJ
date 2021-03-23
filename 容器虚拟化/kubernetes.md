@@ -335,7 +335,31 @@ spec:
 * Never,从不重启
 * OnFailure, 失败时重启
 
-CronJob 会重复地创建 Job
+CronJob 会周期性重复地创建 Job
+
+```yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *"                 # 执行时间
+  jobTemplate:                            # Job 模板
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+```
+
+时间格式与 Linux 中的 Crontab 相同,为五段式 `* * * * *`,"分 时 日 月 周"
 
 ## 服务发现
 
@@ -936,3 +960,535 @@ DaemonSet controller 会自动创建不许调度的容忍,防止 DaemonSets 退�
 * node.kubernetes.io/out-of-disk (only for critical pods)
 * node.kubernetes.io/unschedulable (1.10 or later)
 * node.kubernetes.io/network-unavailable (host network only)
+
+## 配置
+
+### ConfigMap
+
+ConfigMap 用于存储不敏感的数据,Pods 可以使用 ConfigMap 作为环境变量,命令参数或者卷中的配置文件,要注意的是 ConfigMap 中的数据不会加密,要安全地存储敏感的数据建议使用 Secret 或第三方工具
+
+相比于其他对象,ConfigMap 的资源清单不包含`spec`字段,取而代之的是`data`和`binaryData`;其中`data`使用UTF-8编码存储,`binaryData`使用base64 编码存储
+
+ConfigMap 的资源清单示例如下:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: game-demo
+data:                             # 存储键值对配置
+  # property-like keys; each key maps to a simple value
+  player_initial_lives: "3"
+  ui_properties_file_name: "user-interface.properties"
+
+  # file-like keys
+  game.properties: |
+    enemy.types=aliens,monsters
+    player.maximum-lives=5
+  user-interface.properties: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
+```
+
+#### 在 Pod 中使用 ConfigMap
+
+在 Pod 的资源清单中`spec`指定引用 ConfigMap,要注意的是 Pod 和 COnfigMap 要在同样的 namespace
+
+在 Pod 中使用 ConfigMap 有四种方法:
+
+1. 作为容器命令参数
+2. 作为环境变量
+3. 通过只读卷挂载到容器作为文件读取
+4. 在容器中运行代码调用 Kubernetes API 来读取 ConfigMap
+
+以下演示了将 ConfigMap 作为 Pod 容器环境变量使用的方法:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  special.how: very
+  special.type: charm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-config
+  namespace: default
+data:
+  log_level: INFO
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: nginx:v1
+      command: [ "/bin/sh", "-c", "env" ]
+      env:                                # 指定环境变量
+        - name: SPECIAL_LEVEL_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: special-config
+              key: special.how
+        - name: SPECIAL_TYPE_KEY          # 环境变量名
+          valueFrom:                      # 值来源
+            configMapKeyRef:              # 来自 ConfigMap
+              name: special-config        # ConfigMap 名
+              key: special.type           # ConfigMap 中的键名
+      envFrom:                            # 环境变量来源
+        - configMapRef:
+            name: env-config              # ConfigMap 名
+  restartPolicy: Never
+```
+
+以下则演示了将 ConfigMap 作为命令参数的使用方法,实质上是将 ConfigMap 作为环境变量后再调用:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  special.how: very
+  special.type: charm
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: nginx:v1
+      command: [ "/bin/sh", "-c", "echo $(SPECIAL_LEVEL_KEY) $(SPECIAL_TYPE_KEY)" ]                     # 使用 $(键名)的方式
+      env:
+        - name: SPECIAL_LEVEL_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: special-config
+              key: special.how
+        - name: SPECIAL_TYPE_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: special-config
+              key: special.type
+  restartPolicy: Never
+```
+
+以下演示了将 ConfigMap 作为挂载卷内容使用,在挂载时会将 ConfigMap 中的键作为文件名,内容即为值:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  special.how: very
+  special.type: charm
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: nginx:v1
+      volumeMounts:                   # 卷挂载
+      - name: config-volume           # 卷名
+        mountPath: /etc/config        # 挂载点
+  volumes:                            # 挂载卷
+    - name: config-volume             # 卷名
+      configMap:                      # 使用 ConfigMap 作为卷
+        name: special-config          # ConfigMap 名
+```
+
+#### 通过 ConfigMap 更新 Pod 配置
+
+当将 ConfigMap 作为卷挂载至 Pod 后,对于 ConfigMap 的更新,会导致引用的键的更新,也就是 Pod 中挂载的文件的更新;要注意的是,引用为 ENV 的 ConfigMap 更新后, Pod 中的环境变量并不会发生改变
+
+创建 ConfigMap 并挂载至 Pod:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-config
+  namespace: default
+data:
+  log_level: INFO
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: my-nginx
+spec:
+  replicas: 9
+  template:
+    metadata:
+      labels:
+        run: my-nginx
+    spec:
+      containers:
+      - name: my-nginx
+        image: nginx:v1
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: log-config
+```
+
+修改 log-config 中的值,将 "INFO" 改为 "DEBUG":
+
+```shell
+kubectl edit configmap log-config
+# 在修改后需要等待一段时间,然后就能查看到改变
+$ kubectl exec `kubectl get pods -l run=my-nginx  -o=name|cut -d "/" -f2` cat /etc/config/log_level
+```
+
+更改 ConfigMap 的行为虽然会引起 Pod 中文件内容的更新,但不会使 Pod 滚动更新,所以已经运行的应用不会发生变化,如果要引起滚动更新,可以通过修改`spec.template.metadata.annotations.version/config`字段来手动引发滚动更新
+
+```shell
+kubectl patch deployment my-nginx --patch '{"spec": {"template": {"metadata": {"annotations": {"version/config": "20190411" }}}}}'
+```
+
+### Secret 详解
+
+Secret 用于存储敏感数据,例如:密码,令牌等,要注意的是,kubernetes 存储 Secret 时,`data`使用的是未加密的 base64 编码的字符串,`stringData`使用的则是明文
+
+在 Pod 中使用 Secret 有三种途经:
+
+1. 作为卷挂载到容器中
+2. 作为容器的环境变量
+3. 拉取镜像时通过 kubelet 使用
+
+由于 `data` 使用的是 base64 编码存储的方式,所以在写资源清单前需要先转换编码
+
+```shell
+echo "123456" |base64      # 编码
+echo "MTIzNDU2Cg==" |base64 -d         # 解码
+```
+
+Secret 有以下几种类型:
+
+|类型||描述|
+|--|--|
+|Opaque|一般类型|
+|kubernetes.io/service-account-token|服务用户令牌|
+|kubernetes.io/dockercfg|序列化的`~/.dockercfg`文件|
+|kubernetes.io/dockerconfigjson|序列化的`~/.docker/config.json`文件|
+|kubernetes.io/basic-auth|基础认证|
+|kubernetes.io/ssh-auth|SSH 认证|
+|kubernetes.io/tls|TLS 认证文件|
+|bootstrap.kubernetes.io/token|集群令牌|
+
+#### Opaque secrets
+
+Opaque 是默认的 Secret 类型,如果使用命令来创建 Secret,添加`generic`即可
+
+#### Service account token Secrets
+
+存储服务账户的令牌,使用时需要在`metadata.annontations`指定已存账户的名字,将 token 添加在`data`区域
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-sa-sample
+  annotations:
+    kubernetes.io/service-account.name: "sa-name"
+type: kubernetes.io/service-account-token
+data:
+  # You can include additional key value pairs as you do with Opaque Secrets
+  extra: YmFyCg==
+```
+
+### Docker config Secrets
+
+`kubernetes.io/dockercfg`和`kubernetes.io/dockerconfigjson`两种类型都能用于保存 Docker 库的配置
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-dockercfg
+type: kubernetes.io/dockercfg
+data:
+  .dockercfg: |
+        "<base64 encoded ~/.dockercfg file>"
+```
+
+如果没有 Docker 配置文件,则可以使用命令行创建
+
+```bash
+kubectl create secret docker-registry secret-tiger-docker \
+  --docker-username=tiger \
+  --docker-password=pass113 \
+  --docker-email=tiger@acme.com
+```
+
+#### Basic authentication Secret
+
+保存基础认证的数据,包含两个字段`username`和`password`
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-basic-auth
+type: kubernetes.io/basic-auth
+stringData:
+  username: admin
+  password: t0p-Secret
+```
+
+#### SSH authentication secrets
+
+保存 SSH 的认证数据
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-ssh-auth
+type: kubernetes.io/ssh-auth
+data:
+  # the data is abbreviated in this example
+  ssh-privatekey: |
+          MIIEpQIBAAKCAQEAulqb/Y ...
+```
+
+#### TLS secrets
+
+保存 TLS 认证的证书和私钥
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-tls
+type: kubernetes.io/tls
+data:
+  # the data is abbreviated in this example
+  tls.crt: |
+        MIIC2DCCAcCgAwIBAgIBATANBgkqh ...
+  tls.key: |
+        MIIEpgIBAAKCAQEA7yn3bRHQ5FHMQ ...
+```
+
+使用命令行创建 TLS secret 时,要使用 tls 即可
+
+```shell
+kubectl create secret tls my-tls-secret \
+  --cert=path/to/cert/file \
+  --key=path/to/key/file
+```
+
+#### Bootstrap token Secrets
+
+保存集群 Node 间通信认证的令牌
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  # Note how the Secret is named
+  name: bootstrap-token-5emitj
+  # A bootstrap token Secret usually resides in the kube-system namespace
+  namespace: kube-system
+type: bootstrap.kubernetes.io/token
+stringData:
+  auth-extra-groups: "system:bootstrappers:kubeadm:default-node-token"
+  expiration: "2020-09-13T04:39:10Z"
+  # This token ID is used in the name
+  token-id: "5emitj"
+  token-secret: "kq4gihvszzgn1p0r"
+  # This token can be used for authentication
+  usage-bootstrap-authentication: "true"
+  # and it can be used for signing
+  usage-bootstrap-signing: "true"
+```
+
+## 存储
+
+### Volume 详解
+
+卷的寿命与 Pod 相同,当 Pod 被删除时,卷也会被删除
+
+kubernetes 支持多种类型的卷:
+
+* `awsElasticBlockStore`   `azureDisk`   `azureFile`  `cephfs`  `csi`   `downwardAPI`  `emptyDir`  
+* `fc` `flocker`  `gcePersistentDisk`  `gitRepo`  `glusterfs`  `hostPath`  `iscsi`  `local`  `nfs`
+* `persistentVolumeClaim`  `projected`  `portworxVolume`  `quobyte`  `rbd`  `scaleIO`  `secret`
+* `storageos` `vsphereVolume`
+
+#### emptyDir
+
+在 Pod 指定给 Node 时,emptyDir 会被首先创建,并且持续存在直到 Pod被删除时,也会被删除;当 Pod 崩溃时,emptyDir 不会被删除
+
+emptyDir 一般用于:
+
+* 临时空间
+* 计算从崩溃到修复的时间
+* 保持 web 服务产生的数据文件供内容管理器获取
+
+取决于运行环境,emptyDir 卷存储在后端存储,无论是硬盘,SSD 或是网络存储
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+spec:
+  containers:
+  - image: k8s.gcr.io/test-webserver
+    name: test-container
+    volumeMounts:
+    - mountPath: /cache
+      name: cache-volume
+  volumes:
+  - name: cache-volume
+    emptyDir: {}
+```
+
+#### hostPath
+
+挂载一个主机路径到 Pod 中,有以下几种类型:
+
+|类型|描述|
+|--|--|
+| |挂载时不检查|
+|DirectoryOrCreate|挂载目录,不存在时创建,权限0755,和 kubelet 同样的归属|
+|Directory|目录,不存在报错|
+|FileOrCreate|挂在文件,不存在时创建,权限0644,和 kubelet 同样的归属|
+|File|文件,不存在报错|
+|Socket|Unix 套接字,不存在报错|
+|CharDevice|字符设备,不存在报错|
+|BlockDevice|块设备,不存在报错|
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+spec:
+  containers:
+  - image: k8s.gcr.io/test-webserver
+    name: test-container
+    volumeMounts:
+    - mountPath: /test-pd
+      name: test-volume
+  volumes:
+  - name: test-volume
+    hostPath:
+      # directory location on host
+      path: /data
+      # this field is optional
+      type: Directory
+```
+
+### PV 和 PVC
+
+PV(Persistent Volumes) 是存储资源的抽象,使得在调取资源时不必关心底层实现;PV是资源的提供者,而 PVC(Persistent Volumes Claim) 则是资源的使用者,在创建 Pod 时使用 PVC 来绑定 PV
+
+PV 的声明周期独立于 Pod
+
+PV 分为两类,静态和动态;静态是由管理员手动创建供使用,而动态则是云提供商根据 PVC 来创建然后绑定
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv0003
+spec:
+  capacity:
+    storage: 5Gi                            # 大小
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce                         # 访问模式
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: slow                    # 存储类名
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /nfsdata
+    server: 192.168.10.13
+```
+
+PV 的访问规则有以下几种:
+
+* RWO - ReadWriteOnce, 单节点读写
+* ROX - ReadOnlyMany, 多节点只读
+* RWX - ReadWriteMany, 多节点读写
+
+但在实际使用时,需要真实存储设备的支持
+
+PV 可以处于以下的某种状态:
+
+* Available(可用),可以用于绑定
+* Bound(绑定),已被绑定
+* Released(已释放),PVC已删除,但资源未被重新声明
+* Failed(失败),自动回收失败
+
+PV 的回收策略有以下几种:
+
+* Retain,手动重新声明资源
+* Delete,自动删除
+* Recycle,回收;已被废弃,建议使用动态卷
+
+PVC,在被使用时会根据条件绑定合适的 PV
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: myclaim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: slow
+  selector:
+    matchLabels:
+      release: "stable"
+    matchExpressions:
+      - {key: environment, operator: In, values: [dev]}
+```
+
+在 Pod 中使用 PVC
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: myfrontend
+      image: nginx
+      volumeMounts:
+      - mountPath: "/var/www/html"
+        name: mypd
+  volumes:
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: myclaim
+```
