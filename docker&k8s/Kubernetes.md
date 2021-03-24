@@ -1449,7 +1449,7 @@ PV 的回收策略有以下几种:
 
 * Retain,手动重新声明资源
 * Delete,自动删除
-* Recycle,回收;已被废弃,建议使用动态卷
+* Recycle,回收;**已被废弃**,建议使用动态卷
 
 PVC,在被使用时会根据条件绑定合适的 PV
 
@@ -1492,3 +1492,200 @@ spec:
       persistentVolumeClaim:
         claimName: myclaim
 ```
+
+## Kubernetes 认证与权限管理
+
+kubernetes apiserver 作为外部控制器的入口,并且是集群的核心,安全机制基本就是围绕保护 APIserver 来设计的; Kubernetes 使用了认证(Authentication),鉴权(Authorization),准入控制(Amission Control)三步来保证安全
+
+### Authentication
+
+在 Kubernetes cluster 中有两种需要认证的对象:
+
+* kubernetes 组件,kubectl,controller manager,scheduler,kubelet,kube-proxy
+* kubernetes 管理的 Pod
+
+而认证方法有三种:
+
+* HTTP Token 认证,当客户端发起 API 调用请求时,需要在 HTTP Header 里放入 Token
+* HTTP base 认证,通过 用户名+密码 的方式认证
+* 基于 CA 根证书的认证
+
+其中,不同的认证对象使用了不同的认证方法:
+
+* 由于 controller manager, 和 scheduler 与 apiserver 一般运行在一台主机上,所以它们直接使用 localhost 端口通信,不做加密认证
+* 而 kubelet,kubectl 和 kube-proxy 使用基于 CA 的根证书认证
+* Pod 使用 SA 作为认证方式
+
+而 CA 证书有两种颁发形式:
+
+* 手动颁发(包括安装时 kubeamd 办法也是属于手动颁发)
+* 自动颁发,由 kubernetes 自动颁发,当 kubelet 注册至 apiserver 时就是自动颁发
+
+#### kubeconfig
+
+kubeconfig (~/.kube/config)文件包含集群参数(CA证书、API Server地址),客户端参数(上面生成的证书和私钥),集群 context 信息(集群名称、用户名);Kubenetes 组件通过启动时指定不同的 kubeconfig 文件可以切换到不同的集群
+
+#### ServiceAccount
+
+Pod 中的容器访问 APIserver 使用 ServiceAccount 进行认证,由于 Pod 会动态创建,销毁,如果使用证书认证过于消耗资源
+
+#### Secret 与 SA 的关系
+
+Secret 有一类用于保存 SA 信息(service-account-token),其中包含三个部分: Token, ca.crt, namespace
+
+* Token 是使用 APIserver 私钥签名的 JWT(Json Web Token);用于访问 APIserver 时,server 端认证
+* ca.crt 根证书,用于 Client 验证 server 发的证书
+* namespace,标识 service-account-token 的作用域
+
+默认情况下,每个 namespace 都会有一个 ServiceAccount,如果 Pod 在创建时没有指定 ServiceAccount,会使用 Pod 所属的 namespace 的 ServiceAccount
+
+### authorization
+
+认证只是确认了资源的可信,但在请求资源时还要判断权限
+
+APIserver 目前支持以下几种授权策略(在启动 apiserver 时使用 `--authorization-mode`指定)
+
+* AlwaysDeny,拒绝所有请求,一般用于测试
+* AlwaysAllow,允许接受所有请求
+* ABAC(Attribute-Based Access Control),基于属性的访问控制列表
+* RBAC(Role-Based Access Control),基于角色的访问控制,默认规则
+
+#### RBAC
+
+基于角色的访问控制,有以下优势:
+
+* 对集群资源和非资源由完整的覆盖
+* RBAC 由几个 API 对象完成,可以使用 kubectl 或 API 操作
+* 在集群运行时进行调整,无需重启 APIserver
+
+RBAC 引入了四个新的顶级资源对象: Role,ClusterRole,RoleBinding,ClusterRole,ClusterRoleBinding
+
+需要注意的是,kubernetes 本身并没有提供用户管理功能; kubernetes 在组件或其他用户向 CA 申请证书时,需要提供一个证书请求文件,kubernetes 会将其中的`CN`作为用户,`O`作为用户组
+
+```json
+{
+  "CN": "admin",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "HangZhou",
+      "L": "XS",
+      "O": "system:masters",
+      "OU": "System"
+    }
+  ]
+}
+```
+
+##### Role and ClusterRole
+
+Role 标识一组权限规则,权限只会累加不能减少,而 Role 只能定义在一个 namespace 中,如果要跨 namespace 可以使用 ClusterRole
+
+```yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]                                 # 资源对象
+  verbs: ["get", "watch", "list"]                     # 对资源有的权限
+```
+
+ClusterRole 与 Role 功能相同,但权限范围更广,是集群级别的:
+
+* 集群级别资源控制
+* 非资源型 endpoints
+* 所有命名空间资源控制
+
+```yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: secret-reader
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "watch", "list"]
+```
+
+##### RoleBinding and Cluster Role Binding
+
+RoleBinding 用于将角色绑定至用户或用户组, RoleBinding 包含一组权限(subjects),被绑定的用户会具有角色拥有的资源权限
+
+```yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: jane
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+```
+
+RoleBinding 可以用于绑定 Role 和 ClusterRole;通过先创建 ClusterRole,然后在不同的 namespace 中使用
+
+```yaml
+# This role binding allows "dave" to read secrets in the "development" namespace.
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: read-secrets
+  namespace: development # This only grants permissions within the "development" namespace.
+subjects:
+- kind: User
+  name: dave
+  apiGroup: rbac.authorization.k8s.io
+roleRef:                                  # 角色来源
+  kind: ClusterRole                       # 种类
+  name: secret-reader
+  apiGroup: rbac.authorization.k8s.io
+```
+
+使用 ClusterRoleBinding 可以对整个集群中的所有命名空间资源权限进行授权;以下 ClusterRoleBinding 样例展示了授权 manager 组内所有用户在全部命名空间中对 secrets 进行访问
+
+```yaml
+# This cluster role binding allows anyone in the "manager" group to read secrets in any namespace.
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: read-secrets-global
+subjects:
+- kind: Group
+  name: manager
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: secret-reader
+  apiGroup: rbac.authorization.k8s.io
+```
+
+k8s 中的资源一般以名称字符串表示,这些字符串会在 API 的 URL 中出现,同是可能还会包含子资源,例如`/api/v1/namespaces/{namespace}/pods/{name}/log`;如果要在角色中使用可以通过`/`分割符实现
+
+```yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: default
+  name: pod-and-pod-logs-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list"]
+```
+
+### Admission Control
+
