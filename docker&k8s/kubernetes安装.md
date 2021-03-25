@@ -2,6 +2,8 @@
 
 本次 kubernetes 部署使用三台机器,一台作为 master 两台作为 node;kubernetes 版本为1.15.1,docker 版本为20.10.5
 
+使用 kubernetes 官方支持的 kubeadm 作为集群部署工具
+
 在 CentOS 7 上安装 kubernetes 之前需要安装一些依赖和对系统进行优化
 
 ## 修改主机名,并添加 hosts 信息
