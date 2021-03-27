@@ -171,7 +171,7 @@ Pod 是给定的应用的运行实例
 
 ### Pod 的生存周期
 
-一个 Pod 从创建删除一般经过以下几个阶段: 创建 pause 容器,init 初始化,创建应用容器(可以有多个,并行启动),删除容器;其中创建应用容器还可以有两个 Hook PostStart 和 PerStop以及就绪探测和生存探测
+一个 Pod 从创建删除一般经过以下几个阶段: 创建 pause 容器,init 初始化,创建应用容器(可以有多个,并行启动),删除容器;其中创建应用容器还可以有两个 Hook: PostStart 和 PerStop 以及就绪探测和生存探测就应用容器的状态进行探测
 
 * pause 容器: 用于共享网络栈,存储卷,生命周期与 Pod 等长
 * init 初始化:在初始化阶段可先启动一些容器(initC)以生成应用容器所需要的资源
@@ -213,6 +213,112 @@ spec:
   - name: init-mydb
     image: busybox
     command: ['sh', '-c', 'until nslookup mydb; do echo waiting for mydb; sleep 2; done;']
+```
+
+#### PostStart 和 PerStop
+
+在应用容器的启动和关闭前后可以指定一些动作
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: lifecycle-demo
+spec:
+  containers:
+  - name: lifecycle-demo-container
+    image: harbor.hongfu.com/library/myapp:v1
+    lifecycle:                                  # 生命周期
+      postStart:                                # 启动后动作
+        exec:
+          command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+      preStop:                                  # 结束前动作
+        exec:
+          command: ["/bin/sh", "-c", "echo Hello from the poststop handler > /usr/share/message"]
+```
+
+#### 就绪探测和生存探测
+
+由于 Pod 是 k8s 调度和控制的最小单位,对于其中的容器无法进行控制,而探针提供了对容器的检测能力
+
+而探针有三种:
+
+* livenessProbe, 容器是否在运行
+* readinessProbe, 容器是否就绪可以提供服务
+* startupProbe, 容器中的应用是否已经启动;启动探针会阻塞其他探针,直到启动成功
+
+探针有三种不同的处理程序:
+
+* ExecAction: 执行命令,退出码为0则视为成功
+* TCPSocketAction: 对指定端口进行 TCP 检查,端口打开则视为成功
+* HTTPGetAction: 对 IP 端口和路径执行 HTTP Get 请求,如果返回码大于等于 200 且小于 400,则视为成功
+
+每次探测有三种结果之一:
+
+* Success, 成功
+* Failure, 失败
+* Unknown, 探测失败,不会采取任何行动
+
+```yaml
+# livenessProbe-exec
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec-pod
+  namespace: default
+spec:
+  containers:
+  - name: liveness-exec-container
+    image: harbor.hongfu.com/library/busybox:v1
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh","-c","touch /tmp/live ; sleep 60; rm -rf /tmp/live; sleep
+3600"]
+    livenessProbe:                          # 探针
+      exec:                                 # 探测方法
+        command: ["test","-e","/tmp/live"]
+      initialDelaySeconds: 1                # 探测延迟
+      periodSeconds: 3                      # 探测周期
+
+# livenessProbe-httpget 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-httpget-pod
+  namespace: default
+spec:
+  containers:
+  - name: liveness-httpget-container
+    image: harbor.hongfu.com/library/myapp:v1
+    imagePullPolicy: IfNotPresent
+    ports:
+    - name: http
+      containerPort: 80
+    livenessProbe:
+      httpGet:
+        port: 80                          # 探测端口
+        path: /index.html
+      initialDelaySeconds: 1
+      periodSeconds: 3
+      timeoutSeconds: 3
+
+# livenessProbe-tcp
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: probe-tcp
+spec:
+  containers:
+  - name: nginx
+    image: harbor.hongfu.com/library/myapp:v1
+    livenessProbe:
+      initialDelaySeconds: 5
+      timeoutSeconds: 1
+      tcpSocket:                          # TCP 探测
+        port: 80
+        
 ```
 
 ## 控制器
@@ -304,9 +410,163 @@ kubectl roolout undo deployment/nginx-deployment --to-revision=2 # 回滚,--to-r
 
 ### ReplicationController & ReplicaSet
 
+ReplicationController 是旧版本中使用的 Pod 副本控制器,ReplicaSet 则是新版中推荐使用的,相比于 RC 来说, RS 支持标签集合匹配,使得使用更加灵活
+
+在实际使用中,不推荐直接使用 RS;一般使用 Deployment 来管理 RS
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+  labels:
+    app: guestbook
+    tier: frontend
+spec:
+  # modify replicas according to your case
+  replicas: 3                             # 副本数
+  selector:                               # 标签选择器
+    matchLabels:                          # 匹配标签
+      tier: frontend
+  template:                               # pod 模板
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: gcr.io/google_samples/gb-frontend:v3
+```
+
 ### DaemonSet 详解
 
+DaemontSet 会确保每一个 Node 运行并仅运行一个相同服务的 Pod,并且当 Node 加入节点时,会启动 Pod
+
+常见使用有以下几种:
+
+* 在每一个 Node 运行存储守护进程
+* 在每一个 Node 进行日志收集
+* 在每一个 Node 运行节点监控
+
+DaemonSet 的资源清单示例如下:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  selector:
+    matchLabels:
+      name: fluentd-elasticsearch
+  template:
+    metadata:
+      labels:
+        name: fluentd-elasticsearch
+    spec:
+      tolerations:                                  # 容忍master 的污点
+      # remove it if your masters can't run pods
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: fluentd-elasticsearch
+        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        resources:
+          limits:                                 # 资源限制
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:                             # 卷挂载
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+```
+
 ### StatefulSet 详解
+
+StatefulSet 用于管理有状态应用,与 RS 不同的是, StatefulSet 管理的 Pod 会有固定的身份标识(域名`$(service name).$(namespace).svc.cluster.local`)
+
+StatefulSet 有以下几个性:
+
+* 稳定的唯一网络标识
+* 稳定的持久存储
+* 有序的部署和伸缩
+* 有序的滚动更新
+
+**限制**:
+
+* 存储必须使用 PV
+* 删除 StatefulSet 时,不会删除对应PV以保证数据安全
+* 需要一个 Headless Service
+* 当 StatefulSet 被删除是,无法保证所有 Pod 终止,可以通过缩减为 0 来删除
+* 使用默认的滚动更新策略可能会导致状态被破坏,需要手动恢复
+
+一个可用的 StatefulSet 示例如下:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None                     # Headless Service
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  serviceName: "nginx"
+  replicas: 3 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: nginx # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10     # 终止周期
+      containers:
+      - name: nginx
+        image: k8s.gcr.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:                     # 卷声明
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]      # 读写规则
+      storageClassName: "my-storage-class"
+      resources:
+        requests:                           # 需求
+          storage: 1Gi
+```
 
 ### Job & CronJob
 
@@ -333,7 +593,7 @@ spec:
 重启策略有两种:
 
 * Never,从不重启
-* OnFailure, 失败时重启
+* OnFailure,失败时重启
 
 CronJob 会周期性重复地创建 Job
 
