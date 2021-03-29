@@ -82,7 +82,7 @@ docker exec                     # 在容器中执行命令
 
 ## 镜像
 
-### 生命周期
+### 镜像生命周期
 
 ```shell
 docker images                   # 显示镜像
@@ -100,7 +100,7 @@ docker load                     # 从 tar 加载镜像
 docker save                     # 保存容器到 tar
 ```
 
-### 信息
+### 镜像信息
 
 ```shell
 docker history                  # 镜像历史
