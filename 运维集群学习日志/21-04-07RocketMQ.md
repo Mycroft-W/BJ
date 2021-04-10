@@ -16,15 +16,39 @@ NameServer 包括了两个特性:
 * Broker 管理,NameServer 负责 Broker 注册并提供了 hearbeat 机制来检查 Broker 的可用性
 * 路由管理,每一个 NameServer 都存储了完整的路由信息和队列信息
 
+NameServer 是一个几乎无状态节点,可集群部署,但节点间无任何信息同步,每个 NameServer 都保存了 Broker 集群的整个路由信息和用于客户端查询的队列信息
+
 ## Broker Server
 
 Broker 提供了消息存储,转发和验证,以及高可用保障等;Broker 有以下模块来实现上述功能:
 
 * Remoting Module, 是 broker 的入口,处理客户端请求
-* Client Manager, 管理客户端(Producer/Consumer)并维护消费者的主题订阅
+* Client Manager, 管理客户端(Producer/Consumer)并维护消费者的 Topic 订阅
 * Store Service, 提供简单 API 用于在磁盘上存储查询消息
 * HA Service, 提供了 master 和 slave 之间的数据同步功能
 * Index Service, 依靠特殊的键来建立消息索引用于消息的快速查询
+
+## Producer
+
+消息发布的角色,支持分布式集群方式部署;Producer通过MQ的负载均衡模块选择相应的Broker集群队列进行消息投递,投递的过程支持快速失败并且低延迟
+
+Producer 与 NameServer 集群中的其中一个节点(随机)建立长连接,定期获取 Topic 路由信息,并且与提供 Topic 服务的 Master 建立长连接,且定时向 Master 发送心跳;Producer 完全无状态
+
+## Consumer
+
+消息消费的角色,支持分布式集群方式部署;支持以push推,pull拉两种模式对消息进行消费;同时也支持集群方式和广播方式的消费,它提供实时消息订阅机制,可以满足大多数用户的需求
+
+Consumer与NameServer集群中的其中一个节点(随机选择)建立长连接,定期从NameServer获取Topic路由信息,并向提供Topic服务的Master,Slave建立长连接,且定时向Master,Slave发送心跳。
+
+Consumer既可以从Master订阅消息,也可以从Slave订阅消息,消费者在向Master拉取消息时,Master服务器会根据拉取偏移量与最大偏移量的距离(判断是否读老消息,产生读I/O),以及从服务器是否可读等因素建议下一次是从Master还是Slave拉取
+
+## RocketMQ 集群工作流程
+
+1. 启动 NameServer, NameServer 启动后监听端口,等待 Broker,Producer,Consumer 连接
+2. 启动 Broker,跟所有 NameServer 保持长连接,定时发送心跳包;心跳包中包含当前 Broker 信息(IP+端口等)以及所存储的 Topic 信息;注册成功后,NameServer 保存 Topic 和 Broker 的映射关系
+3. 收发消息前,先创建 Topic,创建 Topic 时要指定该 Topic 存储在那些 Broker 上,也可以发送消息时自动创建 Topic
+4. Producer 发送消息,启动时先与 NameServer 中的一台建立长连接,并获取 Topic 和 Broker 的映射关系,轮询从队列列表选择一个队列;与队列所在 Broker 建立长连接并发送消息
+5. Consumer 跟 NameServer 中的一台建立长连接,获取当前订阅的 Topic 和 Broker 的映射关系,建立通道,开始消费
 
 ## 部署方式
 
@@ -71,7 +95,7 @@ RocketMQ 有以下几种部署方式,不同的部署方式各有优劣:
 
 缺点:性能比异步复制模式略低（大约低10%左右）,发送单个消息的RT会略高,且目前版本在主节点宕机后,备机不能自动切换为主机
 
-**注**: Master 和 Slave 是通过相同的 BrokerName 参数来配对的,Master 的 BrokerId 必须为0, Slave 的 BrokerId 是大于零的整数
+**注**: Master 和 Slave 是通过相同的 BrokerName 参数来配对的
 
 ## RocketMQ 性能调优
 
