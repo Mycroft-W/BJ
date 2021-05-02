@@ -286,12 +286,14 @@ SHELL ["可执行文件", "参数"]
 多阶段构建能够有效的减少镜像的体积,基本原理就是将构建编译环境的过程**开发环境**和构建程序的**生产环境**过程分为多个阶段,在最后阶段复制前阶段的生成结果,可以在最后的镜像中不包含编译器,依赖库等文件;最终镜像是以最后的FROM 作为基础镜像的
 
 ```dockerfile
+# 编译环境阶段构建
 FROM golang:1.9-alpine as builder       # 为阶段起别名
 RUN apk --no-cache add git
 WORKDIR /go/src/github.com/go/helloworld/
 RUN go get -d -v github.com/go-sql-driver/mysql
 COPY app.go .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+# 生产环境阶段构建
 FROM alpine:latest as prod
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
