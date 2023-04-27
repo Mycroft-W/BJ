@@ -30,6 +30,7 @@ $ systemctl hybrid-sleep
 # 启动进入救援状态（单用户状态）
 $ systemctl rescue
 ```
+
 #### 运行等级修改
 
 ```shell
@@ -137,7 +138,7 @@ systemd 中的不同系统资源统称为Unit(单位)，分为了12种
 |Swap Unit| swap 文件|
 |Timer Unit| 定时器|
 
-## 服务Unit文件配置
+## Service 配置
 
 systemd配置文件内容
 
@@ -169,6 +170,7 @@ Alias=sshd.service
 ```
 
 ### Unit 区块配置字段
+
 * Description，服务描述
 * Documentation，文档位置
 * After，需要哪些服务先启动，network.target
@@ -192,10 +194,50 @@ Alias=sshd.service
 * StandardOutput，标准日志输出，null表示不输出日志，路径可以控制输出文件位置(对于systemd 236或更高版本，使用StandardOutput=**file:**/some/path)
 * StandardError，错误日志输出，同上
 
-
 ### Install 区块配置字段
 
 * WantedBy，服务所在target；multi-user.target等
+
+### Timer 配置
+
+Timer 是一个定时器，可以作为 crontab 的替代使用; systemd 会根据 timer 文件中定义的时间，周期性的运行指定的 service
+
+```timer
+[Unit]
+Description=Run a service every day
+
+[Timer]
+OnCalendar= *-*-* 00:00:00                      # 在每天 00：00：00 执行
+Unit=demo.service                               # 关联的service
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Timer 区块配置详解
+
+* OnActiveSec： 定时器开启后，多长时间开始执行任务
+* OnBootSec：系统启动后，多少时间开始执行任务
+* OnStartupSec： Systemd进程启动后，多少时间开始执行任务
+* OnUnitActiveSec：定时器执行后多长时间后再次执行
+* OnUnitInactiveSec：定时器关闭多长时间后，再次执行
+* OnCalendar：按固定的周期执行， 格式： 周 年-月-日 时:分:秒
+* AccuracySec： 设置定时器的触发精度，默认为1分钟
+* RandomizedDelaySec： 随即延迟一段时间，防止所有timer同时启动
+* Unit：定时器匹配的单元
+* Persistent: 仅对 OnCalendar 有效，默认为false， 设置为yes时，会将上次触发时间保存在磁盘上，当定时器激活时，单元本应在定时器停止期间执行，则会立即触发，触发器会受制于 RandomizedDelaySec= 设置的延迟影响
+* WakeSystem： 唤醒系统，默认为false
+* RemainAfterElapse：默认为 true，在定时器过期后保留，能够被查询到；如果设置为 false 一个单次触发器在过期后，会被再次触发
+
+#### 临时 timer
+
+使用 systemd-run 命令可以创建一个临时的 timer 去执行任务
+
+```shell
+systemd-run --on-active="12h 30m" /bin/touch /tmp/foo    # 在12小时30秒后，创建一个文件
+
+systemd-run --on-active=30 --unit someunit.service       # 30秒后，执行一个unit
+```
 
 ## 网络管理
 
