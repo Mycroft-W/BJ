@@ -51,14 +51,14 @@ data:
   config.json: |-
     [
       {
-        "clusterID": "ca692ba2-a2de-11ee-8801-ac6175a61599",
+        "clusterID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx",
         "monitors": [
           "59.47.235.64:6789",
           "59.47.235.61:6789",
           "59.47.235.60:6789"
         ],
         "cephFS": {
-          "subvolumeGroup": "dev_ops"   # 子卷名，csi每申请一个pv便会在其下生成一个目录
+          "subvolumeGroup": "csi"
         }
       }
     ]
@@ -693,12 +693,12 @@ metadata:
   namespace: ceph-csi
 stringData:
   # Required for statically provisioned volumes
-  userID: shenzhen_dev_backup
-  userKey: AQDGt75msrO/KRAAAf1ZfXeKmBboziIgjwi07w==
+  userID: 
+  userKey: 
 
   # Required for dynamically provisioned volumes
-  adminID: shenzhen_dev_backup
-  adminKey: AQDGt75msrO/KRAAAf1ZfXeKmBboziIgjwi07w==
+  adminID: 
+  adminKey: 
 
   # Encryption passphrase
   #encryptionPassphrase: test_passphrase
@@ -718,11 +718,11 @@ parameters:
   # Ensure to create an entry in the configmap named ceph-csi-config, based on
   # csi-config-map-sample.yaml, to accompany the string chosen to
   # represent the Ceph cluster in clusterID below
-  clusterID: ca692ba2-a2de-11ee-8801-ac6175a61599
+  clusterID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx
 
   # (required) CephFS filesystem name into which the volume shall be created
   # eg: fsName: myfs
-  fsName: shenzhen_dev_backup
+  fsName: myfs
 
   # (optional) Ceph pool into which volume data shall be stored
   # pool: <cephfs-data-pool>
